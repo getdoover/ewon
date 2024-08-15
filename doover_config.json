@@ -17,7 +17,7 @@
             },
             {
                 "name" : "on_deploy",
-                "processor_name" : "message_processor",
+                "processor_name" : "ewon_processor",
                 "task_config" : {
                     "message_type": "DEPLOY"
                 },
