@@ -32,6 +32,10 @@
     },
     "deployment_channel_messages" : [
         {
+            "channel_name" : "ui_cmds",
+            "channel_message" : {}
+        },
+        {
             "channel_name" : "ui_state",
             "channel_message" : {
                 "state" : null
