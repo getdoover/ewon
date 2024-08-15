@@ -1,0 +1,48 @@
+{
+    "deployment_package_dir": "ewon_processor/",
+    "processor_deployments" : {
+        "processors" : [
+            {
+                "name" : "ewon_processor",
+                "processor_package_dir" : "ewon_processor/"
+            }
+        ],
+        "tasks" : [
+            {
+                "name" : "on_uplink",
+                "processor_name" : "ewon_processor",
+                "task_config" : {
+                    "message_type": "UPLINK"
+                }
+            },
+            {
+                "name" : "on_deploy",
+                "processor_name" : "message_processor",
+                "task_config" : {
+                    "message_type": "DEPLOY"
+                },
+                "subscriptions" : [
+                    {
+                        "channel_name" : "deployments",
+                        "is_active" : true
+                    }
+                ]
+            }
+        ]
+    },
+    "deployment_channel_messages" : [
+        {
+            "channel_name" : "ui_state",
+            "channel_message" : {
+                "state" : null
+            },
+            "save_log" : false
+        },
+        {
+            "channel_name" : "deployments",
+            "channel_message" : {
+                "new_deployment" : true
+            }
+        }
+    ]
+}
