@@ -8,8 +8,8 @@ from pydatamailbox import (
 )
 
 from typing import Any, Union, Callable, overload, Literal, Optional, TypeVar, List
-from datetime import datetime
-from dateutil import parser
+from datetime import datetime, timezone
+from dateutil import parser, tz
 import json
 
 
@@ -69,17 +69,21 @@ class DataMailboxClient:
 
 class Ewon:
 
-    def __init__(self, client: DataMailboxClient, ewon_id: int, ewon_name: Optional[str], last_transaction_id: Optional[int] = None):
+    def __init__(self, client: DataMailboxClient, ewon_id: int, ewon_name: Optional[str] = None, last_transaction_id: Optional[int] = None):
         self.client = client
         self.ewon_id = ewon_id
         self.ewon_name = ewon_name
 
+        self.clock_tz = timezone.utc
+
         self.last_transaction_id = last_transaction_id
-
         self.tags = [] # List[Tag]
-
         self.tag_frames = [] # List[TagFrame]
 
+    def set_clock_tz(self, tz: Union[str, timezone]):
+        if isinstance(tz, str):
+            tz = timezone(tz)
+        self.clock_tz = tz
 
     def update(self):
         ewon_data = self.client.getewon(self.ewon_id, self.ewon_name)
@@ -126,28 +130,36 @@ class Ewon:
             for f in self.tag_frames:
                 print(f)
 
-    def syncdata(self):
+    def syncdata(self, create_transaction: Optional[bool] = None):
 
-        create_transaction = False
-        if self.last_transaction_id is None:
+        if self.last_transaction_id is None and create_transaction is None:
             create_transaction = True
+        else:
+            create_transaction = create_transaction or False
 
         data = self.client.syncdata(last_transaction_id=self.last_transaction_id, create_transaction=create_transaction, ewon_ids=[self.ewon_id])
         
-        self.last_transaction_id = data.get("transactionid")
+        self.last_transaction_id = data.get("transactionId")
 
         ## get the ewon data
-        ewon_data = data.get("ewons", [None])[0]
-        if ewon_data:
+        ewons = data.get("ewons")
+        if ewons and ewons.__len__() > 0:
+            ewon_data = ewons[0]
             self.from_json(ewon_data)
 
+            return self
+
+        return None
+
     def from_json(self, data: dict):
+        self.json_data = data
+
         self.ewon_id = data.get("id")
         self.ewon_name = data.get("name")
 
         tags = data.get("tags")
         if tags:
-            self.tags = [Tag(ewon=self, data=tag) for tag in tags]
+            self.tags = [Tag(ewon=self, data=tag, clock_tz=self.clock_tz) for tag in tags]
 
 
 class Tag:
@@ -159,6 +171,7 @@ class Tag:
                 data_type: Optional[str] = None,
                 description: Optional[str] = None,
                 data: Optional[dict] = None,
+                clock_tz: Optional[timezone] = None,
             ):
         self.ewon = ewon
         
@@ -167,6 +180,8 @@ class Tag:
         self.tag_data_type = data_type
         self.description = description
         
+        self.clock_tz = clock_tz
+
         self.values = [] # List[TagValue]
 
         if data:
@@ -183,7 +198,7 @@ class Tag:
 
         history = data.get("history")
         if history:
-            self.values = [TagValue(tag=self, data=tag) for tag in history]
+            self.values = [TagValue(tag=self, data=tag, clock_tz=self.clock_tz) for tag in history]
 
     def pretty_print(self, verbose: bool = False):
         print(f"Tag: {self.tag_name} ({self.tag_id})")
@@ -203,20 +218,27 @@ class Tag:
 
 class TagValue:
 
-    def __init__(self, tag: Tag, data: Optional[dict] = None):
+    def __init__(self, tag: Tag, data: Optional[dict] = None, clock_tz: Optional[timezone] = None):
         self.tag = tag
 
         self.value = None
         self.timestamp = None
 
+        self.clock_tz = clock_tz
+
         if data:
             self.from_json(data)
 
     def from_json(self, data: dict):
-        self.value = data.get("value")
-        self.timestamp = data.get("date")
 
+        self.value = data.get("value")
+        if self.tag.tag_data_type == "Bool":
+            self.value = data.get("value") in [1, "1", "True", "true"]
+
+        self.timestamp = data.get("date")
         self.timestamp = parser.isoparse(self.timestamp)
+
+        self.timestamp = self.timestamp.replace(tzinfo=self.clock_tz)
 
     @property
     def tag_name(self):
@@ -245,7 +267,7 @@ class TagFrame:
         return False
     
     def add_tag_value(self, tag_value: TagValue):
-        self.tag_values.append(tag_value)
+        self.tag_values.insert(0, tag_value)
 
     def __repr__(self):
         value_string = ", ".join([f"{tag_val.tag.tag_name}={tag_val.value}" for tag_val in self.tag_values])

@@ -1,0 +1,14 @@
+pydatamailbox-0.2.3.dist-info/AUTHORS.md,sha256=bfRHORQOu0EyDYtMObA6ApcDbLS6NOISHRW_XxGeUZg,19
+pydatamailbox-0.2.3.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+pydatamailbox-0.2.3.dist-info/LICENSE,sha256=Fc-tW5-icOCGwhczqdUYhrl73W8fNVCjm87rV9YrU1s,1068
+pydatamailbox-0.2.3.dist-info/METADATA,sha256=EtO_Vkvql1J15oYxhyyIFpiCFYq0WUIX74j3srNxqmI,1665
+pydatamailbox-0.2.3.dist-info/RECORD,,
+pydatamailbox-0.2.3.dist-info/REQUESTED,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
+pydatamailbox-0.2.3.dist-info/WHEEL,sha256=ewwEueio1C2XeHTvT17n8dZUJgOvyCWCt0WVNLClP9o,92
+pydatamailbox-0.2.3.dist-info/top_level.txt,sha256=BT0oeR9MevZO006HWYAFzNKZ9M0SxHVeUqstWagi7ag,14
+pydatamailbox/__init__.py,sha256=gRUWvpJLBexMx1Sue9v23BjWSDLur2x9jHiNC0DvXMA,64
+pydatamailbox/__pycache__/__init__.cpython-38.pyc,,
+pydatamailbox/__pycache__/client.cpython-38.pyc,,
+pydatamailbox/__pycache__/exceptions.cpython-38.pyc,,
+pydatamailbox/client.py,sha256=lWEyuf3yhkN4KdBgcgAELeparVNVZXc9dmHc3K1qS9o,11341
+pydatamailbox/exceptions.py,sha256=jhpCfzEb3ludaBiEnWl1Dh9If4FCzhCmCGFKqc2faAA,318

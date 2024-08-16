@@ -81,7 +81,14 @@ class Client:
             attempt_counter += 1
 
             log.debug(f"Making {route.method} request to {url} with kwargs {kwargs}")
-            resp = self.session.request(route.method, url, timeout=self.request_timeout, **kwargs)
+            
+            try:
+                resp = self.session.request(route.method, url, timeout=self.request_timeout, **kwargs)
+            except requests.exceptions.Timeout:
+                log.info(f"Request to {url} timed out.")
+                if attempt_counter > retries:
+                    raise HTTPException("Request timed out.")
+                continue
 
             if resp.status_code == 200:
                 ## if we get a 200, we're good to go

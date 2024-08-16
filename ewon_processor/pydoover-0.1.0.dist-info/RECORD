@@ -20,7 +20,7 @@ pydoover/cli/__pycache__/cli.cpython-38.pyc,,
 pydoover/cli/__pycache__/config.cpython-38.pyc,,
 pydoover/cli/__pycache__/decorators.cpython-38.pyc,,
 pydoover/cli/__pycache__/parsers.cpython-38.pyc,,
-pydoover/cli/cli.py,sha256=NnZW0MXugKbj6zNCfHcANJww2Cv6N-Lb4JVVFExvgS0,29557
+pydoover/cli/cli.py,sha256=Z68YNqUHkR6dnvDm-yyx_giXBjq9EjF-ul53f42y4c0,29629
 pydoover/cli/config.py,sha256=qRHcCRY5EDS412U6pGFKioT2728eG3d47b5xTKQiH8E,3552
 pydoover/cli/decorators.py,sha256=J7o94sNy2rebIfLzi3nAPRC0c67i_wlJAjkplWBfGVI,1204
 pydoover/cli/parsers.py,sha256=oNGmNAyvMskQ_5q4xRtfY9tvxEnksebERTA6zpIdSq0,580
@@ -37,7 +37,7 @@ pydoover/cloud/api/__pycache__/exceptions.cpython-38.pyc,,
 pydoover/cloud/api/__pycache__/message.cpython-38.pyc,,
 pydoover/cloud/api/agent.py,sha256=XSZJtDnvr8QCIQvYAX5HqNG4TpcLww5NUY3bkUyCwFI,1605
 pydoover/cloud/api/channel.py,sha256=o9AD6kY-GwQh3qy6O4v94iKW4rLussGpSiR6EcXcx60,7025
-pydoover/cloud/api/client.py,sha256=sByCsMS4x_iCuRBnLFm2V3zaXmaw8fU-vqZQL9_yw70,12191
+pydoover/cloud/api/client.py,sha256=sYto4dH-kI_gZvav_xqUOWZMITj2R7Au_chZ-YlrASY,12463
 pydoover/cloud/api/exceptions.py,sha256=cc8wXtxCduvZYwhEBPwHl1lqSRESHmRZ4P7zOUBh_uk,181
 pydoover/cloud/api/message.py,sha256=6Th4a2WGJoye1Qndm6jX5fpJE2-GyZ5GSmCc4OATfNU,1520
 pydoover/cloud/processor/__init__.py,sha256=JEYXFvYWu_0jTWWrL5xkxd9ER5AIj5YwTGJt_Hz2gCQ,32

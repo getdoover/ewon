@@ -9,11 +9,18 @@
         ],
         "tasks" : [
             {
-                "name" : "on_uplink",
+                "name" : "on_fetch",
                 "processor_name" : "ewon_processor",
                 "task_config" : {
-                    "message_type": "UPLINK"
-                }
+                    "message_type": "FETCH"
+                },
+                "min_time_between_invocations" : 3600,
+                "subscriptions" : [
+                    {
+                        "channel_name" : "trigger_fetch",
+                        "is_active" : true
+                    }
+                ]
             },
             {
                 "name" : "on_deploy",

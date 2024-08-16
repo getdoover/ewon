@@ -365,6 +365,8 @@ class CLI:
             return
         print(self.format_channel_info(task))
 
+        agent = self.api.get_agent(self.agent_id)
+
         msg_obj = None
         if channel_name:
             channel = self.api.get_channel_named(channel_name, self.agent_id)
@@ -373,7 +375,7 @@ class CLI:
         task.invoke_locally(
             package_path,
             msg_obj,
-            {"deployment_config": {}}
+            {"deployment_config": agent.deployment_config}
         )
 
     @command(setup_api=True)

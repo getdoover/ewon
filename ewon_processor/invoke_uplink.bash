@@ -1,4 +1,4 @@
 #!/bin/bash
 
 export PYTHONDONTWRITEBYTECODE=1
-python3.11 -m pydoover invoke_local_task on_uplink . --agent c7ac9f7e-2b53-4d5c-85d0-a070d756367a --enable-traceback
+python3.11 -m pydoover invoke_local_task on_uplink . --profile staging --agent c026a1cb-6498-48be-918e-b2d3b645f6f1 --enable-traceback

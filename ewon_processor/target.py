@@ -1,5 +1,6 @@
 import logging, json, time
 from datetime import datetime, timezone, timedelta
+from dateutil import tz
 
 from pydoover.cloud import ProcessorBase
 
@@ -31,16 +32,24 @@ class target(ProcessorBase):
             self.on_deploy()
         elif message_type == "DOWNLINK":
             self.on_downlink()
-        elif message_type == "UPLINK":
-            self.on_uplink()
+        elif message_type == "FETCH":
+            self.on_fetch()
 
     def get_ewon(self):
         if hasattr(self, "_ewon"):
             return self._ewon
         
         ## Setup the ewon interface
-        self._dm_client = DataMailboxClient(token=self.get_dm_token(), devid=self.get_developer_id())
-        self._ewon = Ewon(client=self._dm_client, ewon_id=self.get_ewon_id())
+        self._dm_client = DataMailboxClient(
+            token=self.get_dm_token(),
+            devid=self.get_developer_id()
+        )
+        self._ewon = Ewon(
+            client=self._dm_client,
+            ewon_id=self.get_ewon_id(),
+            ewon_name=self.get_ewon_name(),
+        )
+        self._ewon.set_clock_tz(self.get_ewon_clock_tz())
         self._ewon.update()
 
         return self._ewon
@@ -53,6 +62,21 @@ class target(ProcessorBase):
 
     def get_ewon_id(self):
         return self.get_agent_config("EWON_ID")
+    
+    def get_ewon_name(self):
+        return self.get_agent_config("EWON_NAME")
+
+    def get_ewon_clock_tz(self):
+        tz_string = self.get_agent_config("EWON_CLOCK_TZ")
+        tz_obj = timezone.utc
+
+        if tz_string:
+            try:
+                tz_obj = tz.gettz(tz_string)
+            except:
+                logging.error(f"Invalid timezone string: {tz_string}")
+        return tz_obj
+
 
     def get_ewon_ui_settings(self):
         return self.get_agent_config("EWON_UI_SETTINGS")
@@ -63,15 +87,15 @@ class target(ProcessorBase):
         # Construct the UI
         self.ui_manager.push()
 
-        # Trigger an uplink
-        self.on_uplink()
+        # Trigger a fetch
+        self.on_fetch()
 
 
     def on_downlink(self):
         # Run any downlink processing code here
         pass
 
-    def on_uplink(self):
+    def on_fetch(self):
 
         ## Get the last transaction id, if any from ui_cmds
         last_transaction_id = None
@@ -81,9 +105,11 @@ class target(ProcessorBase):
             if cmds is not None:
                 last_transaction_id = cmds.get("last_ewon_transaction_id")
 
+        logging.info(f"Last transaction id: {last_transaction_id}")
+
         ## Get the latest data from the ewon
         self.get_ewon().last_transaction_id = last_transaction_id
-        self.get_ewon().syncdata()
+        self.get_ewon().syncdata(create_transaction=True)
 
         ## Create the frames for the UI
         self.get_ewon().create_frames()
@@ -92,9 +118,10 @@ class target(ProcessorBase):
         for frame in self.get_ewon().tag_frames:
 
             timestamp = frame.timestamp
-            for tag in frame.tags:
-                self.ui_manager.update_variable(tag.tag_name, tag.current_value)
+            for tag in frame.tag_values:
+                self.ui_manager.update_variable(tag.tag_name, tag.value)
             
+            logging.info(f"Pushing record log for timestamp: {timestamp}")
             self.ui_manager.push(record_log=True, timestamp=timestamp, even_if_empty=True)
 
         ## if success, get the latest transaction id and update the ui_cmds channel
