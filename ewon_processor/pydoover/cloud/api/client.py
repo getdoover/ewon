@@ -87,16 +87,16 @@ class Client:
             except requests.exceptions.Timeout:
                 log.info(f"Request to {url} timed out.")
                 if attempt_counter > retries:
-                    raise HTTPException("Request timed out.")
+                    raise HTTPException(f"Request timed out. {url}")
                 continue
 
             if resp.status_code == 200:
                 ## if we get a 200, we're good to go
                 break
             elif resp.status_code == 403:
-                raise Forbidden("Access denied.")
+                raise Forbidden(f"Access denied. {url}")
             elif resp.status_code == 404:
-                raise NotFound("Resource not found.")
+                raise NotFound(f"Resource not found. {url}")
             elif resp.status_code != 200:
                 log.info(f"Failed to make request to {url}. Status code: {resp.status_code}, message: {resp.text}")
                 if attempt_counter > retries:
@@ -111,7 +111,7 @@ class Client:
         return data
 
     def _get_agent_raw(self, agent_id: str) -> dict[str, Any]:
-        return self.request(Route("GET", "/ch/v1/agent/{}", agent_id))
+        return self.request(Route("GET", "/ch/v1/agent/{}/", agent_id))
 
     def _get_agent_list_raw(self) -> list[dict[str, Any]]:
         return self.request(Route("GET", "/ch/v1/list_agents/"))
@@ -135,14 +135,14 @@ class Client:
             return Channel(client=self, data=data)
 
     def _get_channel_raw(self, channel_id: str) -> dict[str, Any]:
-        return self.request(Route("GET", "/ch/v1/channel/{}", channel_id))
+        return self.request(Route("GET", "/ch/v1/channel/{}/", channel_id))
 
     def get_channel(self, channel_id: str) -> Optional[T]:
         data = self._get_channel_raw(channel_id)
         return data and self._parse_channel(data)
 
     def _get_channel_named_raw(self, channel_name: str, agent_id: str) -> dict[str, Any]:
-        return self.request(Route("GET", "/ch/v1/agent/{}/{}", agent_id, channel_name))
+        return self.request(Route("GET", "/ch/v1/agent/{}/{}/", agent_id, channel_name))
 
     def get_channel_named(self, channel_name: str, agent_id: str) -> Optional[T]:
         data = self._get_channel_named_raw(channel_name, agent_id)
@@ -150,9 +150,9 @@ class Client:
 
     def get_channel_messages(self, channel_id: str, num_messages: Optional[int] = None) -> list[Message]:
         if num_messages:
-            data = self.request(Route("GET", "/ch/v1/channel/{}/messages/{}", channel_id, str(num_messages)))
+            data = self.request(Route("GET", "/ch/v1/channel/{}/messages/{}/", channel_id, str(num_messages)))
         else:
-            data = self.request(Route("GET", "/ch/v1/channel/{}/messages", channel_id))
+            data = self.request(Route("GET", "/ch/v1/channel/{}/messages/", channel_id))
 
         if not data:
             return []
@@ -202,8 +202,8 @@ class Client:
     def publish_to_channel(self, channel_id: str, data: Any, save_log: bool = True, log_aggregate: bool = False, override_aggregate: bool = False, timestamp: Optional[datetime] = None):
         # basically we're assuming there's only 2 types of data - dict or string...
         post_data = {"msg": data}
-        if save_log:
-            post_data["record_log"] = save_log
+        
+        post_data["record_log"] = save_log
         if log_aggregate:
             post_data["log_aggregate"] = True
         if override_aggregate:
@@ -218,8 +218,8 @@ class Client:
 
     def publish_to_channel_name(self, agent_id: str, channel_name: str, data: Any, save_log: bool = True, log_aggregate: bool = False, override_aggregate: bool = False, timestamp: Optional[datetime] = None):
         post_data = {"msg": data}
-        if save_log:
-            post_data["record_log"] = save_log
+        
+        post_data["record_log"] = save_log
         if log_aggregate:
             post_data["log_aggregate"] = True
         if override_aggregate:
@@ -235,13 +235,13 @@ class Client:
     def create_tunnel_endpoints(self, agent_id: str, endpoint_type: str, amount: int):
         to_return = []
         for i in range(amount):
-            res = self.request(Route("POST", "/ch/v1/agent/{}/ngrok_tunnels/{}", agent_id, endpoint_type))
+            res = self.request(Route("POST", "/ch/v1/agent/{}/ngrok_tunnels/{}/", agent_id, endpoint_type))
             if res and res.get("url"):
                 to_return.append(res["url"])
         return to_return
 
     def get_tunnel_endpoints(self, agent_id: str, endpoint_type: str):
-        return self.request(Route("GET", "/ch/v1/agent/{}/ngrok_tunnels/{}", agent_id, endpoint_type))
+        return self.request(Route("GET", "/ch/v1/agent/{}/ngrok_tunnels/{}/", agent_id, endpoint_type))
 
     def login(self):
         if not (self.username or self.password):

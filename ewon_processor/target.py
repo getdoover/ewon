@@ -1,8 +1,9 @@
 import logging, json, time
 from datetime import datetime, timezone, timedelta
 from dateutil import tz
+from zoneinfo import ZoneInfo
 
-from pydoover.cloud import ProcessorBase
+from pydoover.cloud.processor import ProcessorBase
 
 from data_mailbox_client import DataMailboxClient, Ewon
 
@@ -68,13 +69,16 @@ class target(ProcessorBase):
 
     def get_ewon_clock_tz(self):
         tz_string = self.get_agent_config("EWON_CLOCK_TZ")
+
         tz_obj = timezone.utc
 
         if tz_string:
             try:
-                tz_obj = tz.gettz(tz_string)
+                # tz_obj = tz.gettz(tz_string)
+                tz_obj = ZoneInfo(tz_string)
             except:
                 logging.error(f"Invalid timezone string: {tz_string}")
+
         return tz_obj
 
 
@@ -85,7 +89,7 @@ class target(ProcessorBase):
         ## Run any deployment code here
 
         # Construct the UI
-        self.ui_manager.push()
+        self.ui_manager.push(record_log=False, even_if_empty=True)
 
         # Trigger a fetch
         self.on_fetch()
@@ -121,7 +125,7 @@ class target(ProcessorBase):
             for tag in frame.tag_values:
                 self.ui_manager.update_variable(tag.tag_name, tag.value)
             
-            logging.info(f"Pushing record log for timestamp: {timestamp}")
+            logging.info(f"Pushing record log for timestamp: {timestamp}, with tz {timestamp.tzinfo}")
             self.ui_manager.push(record_log=True, timestamp=timestamp, even_if_empty=True)
 
         ## if success, get the latest transaction id and update the ui_cmds channel

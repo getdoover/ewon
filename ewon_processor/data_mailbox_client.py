@@ -83,6 +83,7 @@ class Ewon:
     def set_clock_tz(self, tz: Union[str, timezone]):
         if isinstance(tz, str):
             tz = timezone(tz)
+        print(f"Setting clock timezone to {tz}")
         self.clock_tz = tz
 
     def update(self):
@@ -114,6 +115,7 @@ class Ewon:
                         frame = f
                         break
                 if frame is None:
+                    print(f"Creating new frame for {value}, with timestamp {value.timestamp}")
                     frame = TagFrame(ewon=self, timestamp=value.timestamp, tag_values=[value])
                 else:
                     frame.add_tag_value(value)
