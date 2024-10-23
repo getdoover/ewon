@@ -39,17 +39,27 @@ def construct_ui(processor, ewon):
     ui_elems = []
 
     if ewon_ui_settings is not None:
-        if "multiplot" in ewon_ui_settings:
-            series = ewon_ui_settings["multiplot"]["series"]
-            series_active = ewon_ui_settings["multiplot"]["default_active"]
-            series_colours = ewon_ui_settings["multiplot"]["series_colours"]
+        if "multiplots" in ewon_ui_settings or "multiplot" in ewon_ui_settings:
 
-            multiplot = ui.Multiplot("overviewPlot", "Overview",
-                series=series,
-                series_active=series_active,
-                series_colours=series_colours,
-            )
-            ui_elems.append(multiplot)
+            if "multiplot" in ewon_ui_settings:
+                multiplots = [ewon_ui_settings["multiplot"]]
+            else:
+                multiplots = ewon_ui_settings["multiplots"]
+                
+            if not isinstance(ewon_ui_settings["multiplot"], list):
+                multiplots = [multiplots]
+                
+            for multiplot in multiplots:
+                series = multiplot["series"]
+                series_active = multiplot["default_active"]
+                series_colours = multiplot["series_colours"]
+
+                multiplot = ui.Multiplot(multiplot["name"], multiplot["display_name"],
+                    series=series,
+                    series_active=series_active,
+                    series_colours=series_colours,
+                )
+                ui_elems.append(multiplot)
 
         if "tags" in ewon_ui_settings:
             for ui_tag in ewon_ui_settings["tags"]:
