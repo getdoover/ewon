@@ -45,8 +45,8 @@ def construct_ui(processor, ewon):
                 multiplots = [ewon_ui_settings["multiplot"]]
             else:
                 multiplots = ewon_ui_settings["multiplots"]
-                
-            if not isinstance(ewon_ui_settings["multiplot"], list):
+
+            if not isinstance(multiplots, list):
                 multiplots = [multiplots]
                 
             for multiplot in multiplots:
