@@ -54,7 +54,9 @@ def construct_ui(processor, ewon):
                 series_active = multiplot["default_active"]
                 series_colours = multiplot["series_colours"]
 
-                multiplot = ui.Multiplot(multiplot["name"], multiplot["display_name"],
+                name = multiplot.get("name", ("multiplot" + str(len(ui_elems))))
+
+                multiplot = ui.Multiplot(name, name,
                     series=series,
                     series_active=series_active,
                     series_colours=series_colours,
