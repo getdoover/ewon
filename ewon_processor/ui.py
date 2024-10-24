@@ -56,10 +56,13 @@ def construct_ui(processor, ewon):
 
                 name = multiplot.get("name", ("multiplot" + str(len(ui_elems))))
 
+                title = multiplot.get("title", None)
+
                 multiplot = ui.Multiplot(name, name,
                     series=series,
                     series_active=series_active,
                     series_colours=series_colours,
+                    title=title,
                 )
                 ui_elems.append(multiplot)
 

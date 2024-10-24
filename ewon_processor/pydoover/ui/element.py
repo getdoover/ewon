@@ -67,10 +67,15 @@ class Element:
 
         return result
 
+    ## A stub for the method that will be called when the UI state is updated.
+    # The element can choose to update its internal state based on the previous state and the new state.
+    def recv_ui_state_update(self, state: dict[str, Any]) -> None:
+        pass
 
 class ConnectionType(enum.Enum):
     constant = "constant"
     periodic = "periodic"
+    other = "other"
 
 
 class ConnectionInfo(Element):
@@ -112,7 +117,6 @@ class ConnectionInfo(Element):
         if self.connection_type is not ConnectionType.periodic and (
             self.connection_period is not None
             or self.next_connection is not None
-            or self.offline_after is not None
             or self.allowed_misses is not None
         ):
             raise RuntimeError(
@@ -173,7 +177,7 @@ class Multiplot(Element):
     def __init__(
         self, name: str, display_name: str, series: list[str],
         series_colours: list[Colour], series_active: list[bool], 
-        earliest_data_time: Optional[datetime] = None,
+        earliest_data_time: Optional[datetime] = None, title: Optional[str] = None,
         **kwargs
     ):
         super().__init__(name, display_name, **kwargs)
@@ -182,12 +186,15 @@ class Multiplot(Element):
         self.series_colours = series_colours
         self.series_active = series_active
         self.earliest_data_time = earliest_data_time
+        self.title = title
 
     def to_dict(self):
         result = super().to_dict()
         result['series'] = self.series
         result['colours'] = self.series_colours
         result['activeSeries'] = self.series_active
+        if self.title:
+            result['title'] = self.title
 
         if self.earliest_data_time is not None:
             if isinstance(self.earliest_data_time, datetime):

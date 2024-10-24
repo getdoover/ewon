@@ -15,6 +15,8 @@ from .variable import Variable
 
 from ..cloud.api import Client
 
+from .utils import find_object_with_key, find_path_to_key
+
 if TYPE_CHECKING:
     from ..docker.device_agent.device_agent import device_agent_iface
 
@@ -196,7 +198,24 @@ class UIManager:
 
         self.last_ui_state = payload
         self.last_ui_state_update = time.time()
-        return payload
+
+        ## TODO: Implement this ????
+        # if self._base_container is not None:
+        #     self._base_container.from_dict(payload)
+
+        ## Iterate through the payload and update anything that needs updating
+        # define a function to recursively trawl through each element of the last ui state and allow the element to update itself
+        def update_elements_from_ui_state(d):
+            for k, v in d.items():
+                if isinstance(v, dict):
+                    element = self.get_element(k)
+                    if element is not None:
+                        element.recv_ui_state_update(v)
+                    else:
+                        update_elements_from_ui_state(v)
+
+        update_elements_from_ui_state(payload)
+
 
     def _add_interaction(self, interaction: Interaction):
         name = interaction.name.strip()
@@ -205,6 +224,11 @@ class UIManager:
                 f"Invalid name '{name}' for interaction '{interaction}'. "
                 f"Valid characters include letters, numbers, and underscores."
             )
+        
+        if name in self._interactions:
+            ## If the interaction already exists, we should preserve the current value if it exists
+            if hasattr(self._interactions[name], "_current_value") and self._interactions[name]._current_value is not NotSet:
+                interaction.current_value = self._interactions[name]._current_value
 
         self._interactions[name] = interaction
         interaction._manager = self
@@ -245,6 +269,13 @@ class UIManager:
             return self._interactions[name]
         except KeyError:
             return None
+        
+    def update_interaction(self, name: str, updated: Interaction) -> bool:
+        if name not in self._interactions:
+            return False
+        
+        self._interactions[name] = updated
+        return True
 
     add_command = add_interaction
     get_command = get_interaction
@@ -258,7 +289,13 @@ class UIManager:
         command.coerce(value, critical=critical)
 
     def get_element(self, element_name: str) -> Optional[ElementT]:
-        return self._base_container.get_element(element_name)
+        result = self._base_container.get_element(element_name)
+        # if not result:
+        #     result = find_object_with_key(self.last_ui_state, element_name)
+        return result
+    
+    def get_from_ui_state(self, element_name: str) -> Optional[dict]:
+        return find_object_with_key(self.last_ui_state, element_name)
 
     def update_variable(self, variable_name: str, value: Any, critical: bool = False) -> bool:
         element = self._base_container.get_element(variable_name)
@@ -466,13 +503,16 @@ class UIManager:
                 # sometimes an unregistered function can end up here and break things...
                 continue
 
-            self._remove_interaction(elem.name)
             if elem == self._base_container:
                 raise RuntimeError("You can't remove the base container!")
 
             # this should never be None, but in case some numpty does something weird...
             if getattr(elem, "parent", None):
                 elem.parent.remove_children(elem)
+
+            ## Remove the element
+            self._base_container.remove_children(elem)
+            self._remove_interaction(elem.name)
 
     def set_children(self, children: list[Element]) -> None:
         updated = self._maybe_add_interaction_from_elems(*children)
