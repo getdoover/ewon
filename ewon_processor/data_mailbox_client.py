@@ -74,6 +74,8 @@ class Ewon:
         self.ewon_id = ewon_id
         self.ewon_name = ewon_name
 
+        self.error = None
+
         self.clock_tz = timezone.utc
 
         self.last_transaction_id = last_transaction_id
@@ -87,8 +89,12 @@ class Ewon:
         self.clock_tz = tz
 
     def update(self):
-        ewon_data = self.client.getewon(self.ewon_id, self.ewon_name)
-        self.from_json(ewon_data)
+        try:
+            ewon_data = self.client.getewon(self.ewon_id, self.ewon_name)
+            if ewon_data:
+                self.from_json(ewon_data)
+        except Exception as e:
+            self.error = "Ewon data unavailable : " + str(e)
 
     def get_tag(self, tag_name: Optional[str] = None, tag_id: Optional[int] = None):
         if tag_name:
@@ -284,27 +290,31 @@ if __name__ == "__main__":
     ewon_id = 0000000
 
     client = DataMailboxClient(token=token, devid=developer_id)
-    # print(client.getstatus())
-    # print(client.getewons())
+    print(client.getstatus())
+    print(client.getewons())
 
 
-    test_ewon = Ewon(client=client, ewon_id=ewon_id)
+    test_ewon = Ewon(client=client, ewon_name="LaTrobe", ewon_id=ewon_id)
     
-    # test_ewon.update()
+    test_ewon.update()
+    # print(test_ewon.tags)
+    test_ewon.pretty_print()
+    for tag in test_ewon.tags:
+        tag.pretty_print()
+        print("")
+
+    # test_ewon.syncdata()
     # print(test_ewon.tags)
 
-    test_ewon.syncdata()
-    print(test_ewon.tags)
+    # test_ewon.get_tag("CH4").pretty_print()
 
-    test_ewon.get_tag("CH4").pretty_print()
+    # test_ewon.create_frames()
+    # test_ewon.pretty_print()
 
-    test_ewon.create_frames()
-    test_ewon.pretty_print()
+    # # print(client.syncdata())
 
-    # print(client.syncdata())
-
-    # ## write syncdata data to a file
-    # with open("syncdata.json", "w") as f:
-    #     data = client.syncdata()
-    #     f.write(json.dumps(data, indent=4))
-    #     # print(data)
+    # # ## write syncdata data to a file
+    # # with open("syncdata.json", "w") as f:
+    # #     data = client.syncdata()
+    # #     f.write(json.dumps(data, indent=4))
+    # #     # print(data)
