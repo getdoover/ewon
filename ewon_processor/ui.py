@@ -85,7 +85,8 @@ def construct_ui(processor, ewon):
                 ## Find the corresponding tag
                 tag = ewon.get_tag(tag)
                 ## remove it from the list remaining
-                ewon_tags.remove(tag)
+                if tag in ewon_tags:
+                    ewon_tags.remove(tag)
 
     if not "auto_include" in ewon_ui_settings or ewon_ui_settings["auto_include"] == True:
         ## Add any remaining tags
@@ -93,6 +94,12 @@ def construct_ui(processor, ewon):
             element = tag_to_element({}, tag)
             if element:
                 ui_elems.append(element)
+
+    ## if ewon has an error. add a ui_warning
+    if ewon.error:
+        ui_elems.append(
+            ui.Warning("error", "Error", ewon.error)
+        )
 
     ui_elems.append(
         ui.ConnectionInfo("connectionInfo",
