@@ -72,7 +72,8 @@ def construct_ui(processor, ewon):
                 ## Find the corresponding tag
                 tag = ewon.get_tag(ui_tag["tag_name"])
                 ## remove it from the list remaining
-                ewon_tags.remove(tag)
+                if tag in ewon_tags:
+                    ewon_tags.remove(tag)
 
                 element = tag_to_element(ui_tag, tag)
                 if element:
