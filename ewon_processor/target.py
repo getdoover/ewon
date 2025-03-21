@@ -126,7 +126,7 @@ class target(ProcessorBase):
                 self.ui_manager.update_variable(tag.tag_name, tag.value)
             
             logging.info(f"Pushing record log for timestamp: {timestamp}, with tz {timestamp.tzinfo}")
-            self.ui_manager.push(record_log=True, timestamp=timestamp, even_if_empty=True)
+            self.ui_manager.push(record_log=True, timestamp=timestamp, even_if_empty=True, publish_fields=["currentValue"])
 
         ## if success, get the latest transaction id and update the ui_cmds channel
         if self.get_ewon().last_transaction_id is not None:
