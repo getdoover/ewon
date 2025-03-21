@@ -19,7 +19,7 @@ def tag_to_element(settings, tag):
     if dataType == "Bool":
         return ui.BooleanVariable(name, display_name)
     
-    elif dataType == "Float":
+    elif dataType in ["Float", "Int", "UInt"]:
         return ui.NumericVariable(
             name, display_name,
             dec_precision=dec_precision,
@@ -98,7 +98,7 @@ def construct_ui(processor, ewon):
     ## if ewon has an error. add a ui_warning
     if ewon.error:
         ui_elems.append(
-            ui.Warning("error", "Error", ewon.error)
+            ui.WarningIndicator("error", str(ewon.error))
         )
 
     ui_elems.append(
