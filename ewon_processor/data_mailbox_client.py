@@ -3,7 +3,7 @@
 from pydatamailbox import (
     DataMailbox,
     # DataMailboxArgsError,
-    # DataMailboxBaseException,
+    DataMailboxBaseException,
     # M2Web,
 )
 
@@ -93,6 +93,8 @@ class Ewon:
             ewon_data = self.client.getewon(self.ewon_id, self.ewon_name)
             if ewon_data:
                 self.from_json(ewon_data)
+        except DataMailboxBaseException as e:
+            self.error = "Ewon data unavailable : " + str(e)
         except Exception as e:
             self.error = "Ewon data unavailable : " + str(e)
 
@@ -139,6 +141,9 @@ class Ewon:
                 print(f)
 
     def syncdata(self, create_transaction: Optional[bool] = None):
+        if self.error:
+            print("Not syncing data due to error : " + self.error)
+            return None
 
         if self.last_transaction_id is None and create_transaction is None:
             create_transaction = True
