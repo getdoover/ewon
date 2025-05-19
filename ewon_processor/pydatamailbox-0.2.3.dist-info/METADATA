@@ -1,0 +1,59 @@
+Metadata-Version: 2.1
+Name: pydatamailbox
+Version: 0.2.3
+Summary: Unofficial client for the Ewon's datamailbox web APIs
+Home-page: https://github.com/optimdata/pydatamailbox
+Author: Guillaume Thomas
+Author-email: guillaume.thomas@inuse.eu
+License: MIT license
+Keywords: pydatamailbox
+Platform: UNKNOWN
+Classifier: Development Status :: 2 - Pre-Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+License-File: AUTHORS.md
+Requires-Dist: requests
+
+[![Build Status](https://travis-ci.org/optimdata/pydatamailbox.svg?branch=master)](https://travis-ci.org/optimdata/pydatamailbox)
+[![codecov](https://codecov.io/gh/optimdata/pydatamailbox/branch/master/graph/badge.svg)](https://codecov.io/gh/optimdata/pydatamailbox)
+
+# pydatamailbox
+
+`pydatamail` is an unoffical client for the Ewon's datamailbox web APIs. The Talk2M Service "DataMailbox" allows easy retrieval of Ewon historical data. It uses the great http client [requests](https://2.python-requests.org/en/master/)
+
+## Resources
+
+- [Offical ewon page](https://developer.ewon.biz/content/dmweb-api)
+- [Documentation](https://pydatamailbox.readthedocs.io/en/latest/)
+
+
+## History
+
+### 0.2.3
+
+- Add `ewonIds` filter on `syncdata`
+- Add authentication with token form t2m
+
+### 0.2.2
+
+- Add `getdata` method
+
+### 0.2.1
+
+- Add global request timeout
+
+### 0.2.0
+
+- Add support for m2web api
+
+### 0.1.0
+
+- First version
+
+
