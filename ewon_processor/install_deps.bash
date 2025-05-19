@@ -1,7 +1,10 @@
-pip install ~/pydoover -t ./ --upgrade --no-dependencies
+#!/bin/bash
+
+uv pip install --no-deps --target ./ pydoover
+uv pip install --no-deps  --target ./ pydatamailbox
+
 rm -rf ./pydoover/docker
+rm -rf ./bin/
+rm .lock
 
-pip install pydatamailbox -t ./ --upgrade --no-dependencies
-# pip install python-dateutil -t ./ --upgrade --no-dependencies
 find . | grep -E "(/__pycache__$|\.pyc$|\.pyo$)" | xargs rm -rf
-

@@ -1,0 +1,10 @@
+[project]
+name = "netbiter_processor"
+version = "0.1.0"
+description = "Processor for netbiter modbus devices through the API."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pydatamailbox==0.2.3",
+    "pydoover>=0.3.9",
+]

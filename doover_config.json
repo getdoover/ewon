@@ -1,58 +1,58 @@
 {
     "deployment_package_dir": "ewon_processor/",
-    "processor_deployments" : {
-        "processors" : [
+    "processor_deployments": {
+        "processors": [
             {
-                "name" : "ewon_processor",
-                "processor_package_dir" : "ewon_processor/"
+                "name": "ewon_processor",
+                "processor_package_dir": "ewon_processor/"
             }
         ],
-        "tasks" : [
+        "tasks": [
             {
-                "name" : "on_fetch",
-                "processor_name" : "ewon_processor",
-                "task_config" : {
+                "name": "on_fetch",
+                "processor_name": "ewon_processor",
+                "task_config": {
                     "message_type": "FETCH"
                 },
-                "min_time_between_invocations" : 3600,
-                "subscriptions" : [
+                "min_time_between_invocations": 3600,
+                "subscriptions": [
                     {
-                        "channel_name" : "trigger_fetch",
-                        "is_active" : true
+                        "channel_name": "trigger_fetch",
+                        "is_active": true
                     }
                 ]
             },
             {
-                "name" : "on_deploy",
-                "processor_name" : "ewon_processor",
-                "task_config" : {
+                "name": "on_deploy",
+                "processor_name": "ewon_processor",
+                "task_config": {
                     "message_type": "DEPLOY"
                 },
-                "subscriptions" : [
+                "subscriptions": [
                     {
-                        "channel_name" : "deployments",
-                        "is_active" : true
+                        "channel_name": "deployments",
+                        "is_active": true
                     }
                 ]
             }
         ]
     },
-    "deployment_channel_messages" : [
+    "deployment_channel_messages": [
         {
-            "channel_name" : "ui_cmds",
-            "channel_message" : {}
+            "channel_name": "ui_cmds",
+            "channel_message": {}
         },
         {
-            "channel_name" : "ui_state",
-            "channel_message" : {
-                "state" : null
+            "channel_name": "ui_state",
+            "channel_message": {
+                "state": null
             },
-            "save_log" : false
+            "save_log": false
         },
         {
-            "channel_name" : "deployments",
-            "channel_message" : {
-                "new_deployment" : true
+            "channel_name": "deployments",
+            "channel_message": {
+                "new_deployment": true
             }
         }
     ]

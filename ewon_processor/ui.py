@@ -1,113 +1,91 @@
-import logging
+from contextlib import suppress
+from typing import TYPE_CHECKING, Any
 
 from pydoover import ui
 
+if TYPE_CHECKING:
+    from netbiter_argos_client import Netbiter, Tag
 
-def tag_to_element(settings, tag):
 
+def tag_to_element(config: dict[str, Any], tag: "Tag"):
     if not tag:
         return None
 
-    name = settings.get("tag_name", tag.tag_name)
-    display_name = settings.get("display_name", tag.description)
-    ranges = settings.get("ranges", None)
-    form = settings.get("form", None)
-    dec_precision = settings.get("dec_precision", None)
+    if not tag.data_type:
+        return None
 
-    dataType = tag.tag_data_type
+    name = config.get("tag_name", tag.name)
+    display_name = config.get("display_name", tag.description)
 
-    if dataType == "Bool":
+    if tag.data_type == "Bool":
         return ui.BooleanVariable(name, display_name)
-    
-    elif dataType in ["Float", "Int", "UInt"]:
-        return ui.NumericVariable(
-            name, display_name,
-            dec_precision=dec_precision,
-            ranges=ranges,
-            form=form,
-        )
-    
-    return None
 
-
-def construct_ui(processor, ewon):
-
-    ewon_ui_settings = processor.get_ewon_ui_settings()
-
-    ewon_tags = ewon.tags
-
-    ui_elems = []
-
-    if ewon_ui_settings is not None:
-        if "multiplots" in ewon_ui_settings or "multiplot" in ewon_ui_settings:
-
-            if "multiplot" in ewon_ui_settings:
-                multiplots = [ewon_ui_settings["multiplot"]]
-            else:
-                multiplots = ewon_ui_settings["multiplots"]
-
-            if not isinstance(multiplots, list):
-                multiplots = [multiplots]
-                
-            for multiplot in multiplots:
-                series = multiplot["series"]
-                series_active = multiplot["default_active"]
-                series_colours = multiplot["series_colours"]
-
-                name = multiplot.get("name", ("multiplot" + str(len(ui_elems))))
-
-                title = multiplot.get("title", None)
-
-                multiplot = ui.Multiplot(name, name,
-                    series=series,
-                    series_active=series_active,
-                    series_colours=series_colours,
-                    title=title,
-                )
-                ui_elems.append(multiplot)
-
-        if "tags" in ewon_ui_settings:
-            for ui_tag in ewon_ui_settings["tags"]:
-
-                ## Find the corresponding tag
-                tag = ewon.get_tag(ui_tag["tag_name"])
-                ## remove it from the list remaining
-                if tag in ewon_tags:
-                    ewon_tags.remove(tag)
-
-                element = tag_to_element(ui_tag, tag)
-                if element:
-                    ui_elems.append(element)
-
-
-        if "exclude_tags" in ewon_ui_settings:
-            for tag in ewon_ui_settings["exclude_tags"]:
-                ## Find the corresponding tag
-                tag = ewon.get_tag(tag)
-                ## remove it from the list remaining
-                if tag in ewon_tags:
-                    ewon_tags.remove(tag)
-
-    if not "auto_include" in ewon_ui_settings or ewon_ui_settings["auto_include"] == True:
-        ## Add any remaining tags
-        for tag in ewon_tags:
-            element = tag_to_element({}, tag)
-            if element:
-                ui_elems.append(element)
-
-    ## if ewon has an error. add a ui_warning
-    if ewon.error:
-        ui_elems.append(
-            ui.WarningIndicator("error", str(ewon.error))
-        )
-
-    ui_elems.append(
-        ui.ConnectionInfo("connectionInfo",
-            connection_type=ui.ConnectionType.periodic,
-            connection_period=(60*60), # 1 hour
-            next_connection=(60*60), # 1 hour
-            allowed_misses=6,
-        )
+    # dataType in ("Float", "Int", "UInt")
+    return ui.NumericVariable(
+        name,
+        display_name,
+        precision=config.get("dec_precision"),
+        ranges=config.get("ranges"),
+        form=config.get("form"),
     )
 
-    return ui_elems
+
+class NetBiterUI:
+    def __init__(self, config: dict[str, Any], device: "Netbiter") -> None:
+        multiplots = config.get("multiplots", [])
+        with suppress(KeyError):
+            multiplots.append(config["multiplot"])
+
+        self.multiplots = [
+            ui.Multiplot(
+                p.get("name", f"multiplot{i}"),
+                p.get("title", None),
+                series=p["series"],
+                series_active=p["default_active"],
+                series_colours=p["series_colours"],
+            )
+            for i, p in enumerate(multiplots)
+        ]
+
+        exclude = config.get("exclude", [])
+        tags = [t for t in config.get("tags", []) if t["tag_name"] not in exclude]
+        auto_include = config.get("auto_include", True)
+
+        self.tags = []
+        for tag in tags:
+            elem = tag_to_element(tag, device.get_tag(tag["tag_name"]))
+            if elem is None and auto_include:
+                elem = tag_to_element({}, device.get_tag(tag["tag_name"]))
+
+            if elem is not None:
+                self.tags.append(elem)
+
+        self.error = ui.WarningIndicator("error", "placeholder", hidden=True)
+        self.connection_info = ui.ConnectionInfo(
+            "connectionInfo",
+            connection_type=ui.ConnectionType.periodic,
+            connection_period=60 * 60,  # 1 hour
+            next_connection=60 * 60,  # 1 hour
+            allowed_misses=6,
+        )
+
+    def fetch(self):
+        return *self.multiplots, *self.tags, self.error, self.connection_info
+
+    def update(self, device: "Netbiter") -> bool:
+        if device.error:
+            self.error.display_name = str(device.error)
+            self.error.hidden = False
+            return False
+
+        else:
+            self.error.hidden = True
+
+        ok = False
+        for tag in self.tags:
+            tag_value = device.get_tag(tag.name)
+            if tag_value is not None:
+                tag.update(tag_value.value)
+                ok = True
+
+        return ok

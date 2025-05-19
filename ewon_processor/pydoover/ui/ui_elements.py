@@ -1,3 +1,0 @@
-# this is just for backwards compatibility, most things will do
-# from pydoover.ui.ui_elements import ...
-from . import *
