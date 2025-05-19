@@ -45,7 +45,7 @@ class Target(ProcessorBase):
 
     @property
     def api_token(self):
-        return self.get_agent_config("DM_TOKEN")
+        return self.get_agent_config("API_TOKEN")
 
     @property
     def developer_id(self):
@@ -53,15 +53,15 @@ class Target(ProcessorBase):
 
     @property
     def device_id(self):
-        return self.get_agent_config("EWON_ID")
+        return self.get_agent_config("DEVICE_ID")
 
     @property
     def device_name(self):
-        return self.get_agent_config("EWON_NAME")
+        return self.get_agent_config("DEVICE_NAME")
 
     @property
     def device_clock_tz(self) -> ZoneInfo:
-        tz_string = self.get_agent_config("EWON_CLOCK_TZ")
+        tz_string = self.get_agent_config("DEVICE_CLOCK_TZ")
 
         tz_obj = timezone.utc
 
@@ -76,7 +76,7 @@ class Target(ProcessorBase):
 
     @property
     def ui_config(self):
-        return self.get_agent_config("EWON_UI_SETTINGS")
+        return self.get_agent_config("UI_CONFIG")
 
     def on_deploy(self):
         ## Run any deployment code here
@@ -99,11 +99,11 @@ class Target(ProcessorBase):
         if ui_cmds_agg is not None:
             cmds = ui_cmds_agg.get("cmds")
             if cmds is not None:
-                last_transaction_id = cmds.get("last_ewon_transaction_id")
+                last_transaction_id = cmds.get("last_device_transaction_id")
 
         log.info(f"Last transaction id: {last_transaction_id}")
 
-        ## Get the latest data from the ewon
+        ## Get the latest data from the device
         self.device.last_transaction_id = last_transaction_id
         self.device.syncdata(create_transaction=True)
 
@@ -119,5 +119,5 @@ class Target(ProcessorBase):
         ## if success, get the latest transaction id and update the ui_cmds channel
         if self.device.last_transaction_id is not None:
             ui_cmds_channel.publish(
-                {"cmds": {"last_ewon_transaction_id": self.device.last_transaction_id}}
+                {"cmds": {"last_device_transaction_id": self.device.last_transaction_id}}
             )
