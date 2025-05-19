@@ -12,10 +12,13 @@ from ui import NetBiterUI
 log = logging.getLogger()
 
 
-class Target(ProcessorBase):
+class target(ProcessorBase):
     def setup(self):
+        self.ui_state_channel = self.fetch_channel_named("ui_state")
+        self.ui_cmds_channel = self.fetch_channel_named("ui_cmds")
+
         tag_names = [
-            t
+            t["tag_name"]
             for t in self.ui_config.get("tags", [])
             if t["tag_name"] not in self.ui_config.get("exclude", [])
         ]
@@ -29,7 +32,7 @@ class Target(ProcessorBase):
         self.device.update()
 
         # Construct the UI
-        self.ui = NetBiterUI(self.ui_config, self.device)
+        self.ui = NetBiterUI(self.ui_config)
         self.ui_manager.add_children(*self.ui.fetch())
         self.ui_manager.pull()
 
@@ -94,8 +97,7 @@ class Target(ProcessorBase):
     def on_fetch(self):
         ## Get the last transaction id, if any from ui_cmds
         last_transaction_id = None
-        ui_cmds_channel = self.api.get_channel("ui_cmds")
-        ui_cmds_agg = ui_cmds_channel.fetch_aggregate()
+        ui_cmds_agg = self.ui_cmds_channel.fetch_aggregate()
         if ui_cmds_agg is not None:
             cmds = ui_cmds_agg.get("cmds")
             if cmds is not None:
@@ -110,14 +112,17 @@ class Target(ProcessorBase):
         ## Create the frames for the UI
         self.device.create_frames()
 
-        ok = self.ui.update(self.device)
-        if ok:
-            self.ui_manager.push(
-                record_log=True, even_if_empty=True, publish_fields=["currentValue"]
-            )
+        self.ui.update(self.device)
+        if self.ui.error.hidden is False:
+            log.error(f"Device error: {self.ui.error.display_name}")
+            self.ui_manager.add_children(self.ui.error)
+
+        self.ui_manager.push(
+            record_log=True, even_if_empty=True, publish_fields=["currentValue"]
+        )
 
         ## if success, get the latest transaction id and update the ui_cmds channel
         if self.device.last_transaction_id is not None:
-            ui_cmds_channel.publish(
+            self.ui_cmds_channel.publish(
                 {"cmds": {"last_device_transaction_id": self.device.last_transaction_id}}
             )

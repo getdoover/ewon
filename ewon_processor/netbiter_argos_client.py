@@ -33,9 +33,10 @@ class TagFrame:
         self.tag_values: list[Tag] = tags
         self.timestamp: datetime = timestamp
 
-        self._by_name = {t.name: t for t in tags}
+        self._by_name = {t.name.lower().replace(" ", "_"): t for t in tags}
 
-    def get_tag(self, tag_name):
+    def get_tag(self, tag_name) -> Tag | None:
+        tag_name = tag_name.lower().replace(" ", "_")
         try:
             return self._by_name[tag_name]
         except KeyError:
@@ -198,7 +199,7 @@ if __name__ == "__main__":
     SYSTEM_ID = "system_id"
 
     tag_names = [
-        "tag_name_1",
+       "tags"
     ]
 
     netbiter = Netbiter(

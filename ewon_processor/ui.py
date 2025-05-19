@@ -4,21 +4,15 @@ from typing import TYPE_CHECKING, Any
 from pydoover import ui
 
 if TYPE_CHECKING:
-    from netbiter_argos_client import Netbiter, Tag
+    from netbiter_argos_client import Netbiter
 
 
-def tag_to_element(config: dict[str, Any], tag: "Tag"):
-    if not tag:
-        return None
+def tag_to_element(config: dict[str, Any]):
+    name = config.get("tag_name").replace(" ", "_")
+    display_name = config.get("display_name")
 
-    if not tag.data_type:
-        return None
-
-    name = config.get("tag_name", tag.name)
-    display_name = config.get("display_name", tag.description)
-
-    if tag.data_type == "Bool":
-        return ui.BooleanVariable(name, display_name)
+    # if tag.data_type == "Bool":
+    #     return ui.BooleanVariable(name, display_name)
 
     # dataType in ("Float", "Int", "UInt")
     return ui.NumericVariable(
@@ -31,7 +25,7 @@ def tag_to_element(config: dict[str, Any], tag: "Tag"):
 
 
 class NetBiterUI:
-    def __init__(self, config: dict[str, Any], device: "Netbiter") -> None:
+    def __init__(self, config: dict[str, Any]) -> None:
         multiplots = config.get("multiplots", [])
         with suppress(KeyError):
             multiplots.append(config["multiplot"])
@@ -49,14 +43,22 @@ class NetBiterUI:
 
         exclude = config.get("exclude", [])
         tags = [t for t in config.get("tags", []) if t["tag_name"] not in exclude]
-        auto_include = config.get("auto_include", True)
+
+        # this whole auto_add thing doesn't make sense because we filter in the device code for
+        # only tags that are defined in the UI. Feel free to add it back in...
+        # tag_names_set = set(t["tag_name"] for t in tags)
+        #
+        # if config.get("auto_include", True):
+        #     tags += [
+        #         {
+        #             "tag_name": name,
+        #             "display_name": name,
+        #         } for name in device_tags if name not in tag_names_set
+        #     ]
 
         self.tags = []
         for tag in tags:
-            elem = tag_to_element(tag, device.get_tag(tag["tag_name"]))
-            if elem is None and auto_include:
-                elem = tag_to_element({}, device.get_tag(tag["tag_name"]))
-
+            elem = tag_to_element(tag)
             if elem is not None:
                 self.tags.append(elem)
 
@@ -70,14 +72,13 @@ class NetBiterUI:
         )
 
     def fetch(self):
-        return *self.multiplots, *self.tags, self.error, self.connection_info
+        return *self.multiplots, *self.tags, self.connection_info
 
     def update(self, device: "Netbiter") -> bool:
         if device.error:
             self.error.display_name = str(device.error)
             self.error.hidden = False
             return False
-
         else:
             self.error.hidden = True
 
