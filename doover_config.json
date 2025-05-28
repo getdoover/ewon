@@ -14,7 +14,7 @@
                 "task_config": {
                     "message_type": "FETCH"
                 },
-                "min_time_between_invocations": 3600,
+                "min_time_between_invocations": 900,
                 "subscriptions": [
                     {
                         "channel_name": "trigger_fetch",

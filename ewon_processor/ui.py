@@ -66,8 +66,8 @@ class NetBiterUI:
         self.connection_info = ui.ConnectionInfo(
             "connectionInfo",
             connection_type=ui.ConnectionType.periodic,
-            connection_period=60 * 60,  # 1 hour
-            next_connection=60 * 60,  # 1 hour
+            connection_period=15 * 60,  # 1 hour
+            next_connection=15 * 60,  # 1 hour
             allowed_misses=6,
         )
 
