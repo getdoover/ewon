@@ -24,6 +24,7 @@ def command(name: str = None, description: str = None, setup_api: bool = False):
                 # first arg is self
                 args[0].setup_api()
             return func(*args, **kwargs)
+
         return inner
 
     return wrapper
@@ -39,6 +40,12 @@ def annotate_arg(arg_name: str, description: str):
         @wraps(func)
         def inner(*args, **kwargs):
             return func(*args, **kwargs)
+
         return inner
+
     return wrapper
 
+
+def ignore_alias(func):
+    func._is_command = False
+    return func

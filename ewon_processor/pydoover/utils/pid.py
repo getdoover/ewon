@@ -1,22 +1,24 @@
 import time
 
-class PID:
 
-    def __init__(self, Kp, Ki, Kd, setpoint=0, output_limits=(None, None)):
+class PID:
+    def __init__(self, Kp, Ki, Kd, setpoint=0, output_limits=(None, None), integral_output_limit=None):
         """
         Initialize the PID controller.
-        
+
         :param Kp: Proportional gain
         :param Ki: Integral gain
         :param Kd: Derivative gain
         :param setpoint: The target value that the PID controller tries to achieve
         :param output_limits: Tuple (min_output, max_output) for limiting output
+        :param integral_limit: Limit for the integral term
         """
         self.Kp = Kp
         self.Ki = Ki
         self.Kd = Kd
         self.setpoint = setpoint
         self.output_limits = output_limits
+        self.integral_limit = integral_output_limit
 
         self._last_time = None
         self._last_error = None
@@ -26,7 +28,7 @@ class PID:
     def update(self, feedback_value, dt=None):
         """
         Update the PID loop with the current feedback value.
-        
+
         :param feedback_value: The current value from the process
         :param dt: Optional time interval. If not provided, it's calculated internally.
         :return: The control output
@@ -41,7 +43,7 @@ class PID:
             if self._last_output is not None:
                 return self._last_output
             return 0
-            
+
         # Calculate time difference (dt) if not provided
         if dt is None:
             delta_time = current_time - self._last_time
@@ -58,6 +60,9 @@ class PID:
         # Integral term
         self._integral += error * delta_time
         integral = self.Ki * self._integral
+        if self.integral_limit is not None:
+            integral = max(integral, -self.integral_limit)
+            integral = min(integral, self.integral_limit)
 
         # Derivative term
         delta_error = error - self._last_error
@@ -83,7 +88,7 @@ class PID:
     def set_output_limits(self, min_output, max_output):
         """
         Set the minimum and maximum output limits.
-        
+
         :param min_output: Minimum limit
         :param max_output: Maximum limit
         """
@@ -92,7 +97,7 @@ class PID:
     def set_setpoint(self, setpoint):
         """
         Set a new target value for the PID to reach.
-        
+
         :param setpoint: The target value
         """
         self.setpoint = setpoint
@@ -100,7 +105,7 @@ class PID:
     def set_last_output(self, output):
         """
         Set the last output value.
-        
+
         :param output: The last output value
         """
         self._last_output = output
@@ -108,7 +113,7 @@ class PID:
     def set_last_error(self, error):
         """
         Set the last error value.
-        
+
         :param error: The last error value
         """
         self._last_error = error
@@ -116,12 +121,13 @@ class PID:
     def set_integral_output(self, integral_output):
         """
         Initialise the integral output for a desired output value.
-        
+
         :param integral: The integral integral_output value
         """
         if self.Ki == 0:
             self._integral = 0
-        self._integral = integral_output / self.Ki
+        else:
+            self._integral = integral_output / self.Ki
 
     def reset(self):
         """

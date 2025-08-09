@@ -1,14 +1,14 @@
 class DooverException(Exception):
-    pass
+    """General exception class for Doover API errors"""
 
 
 class HTTPException(DooverException):
-    pass
+    """Error class for HTTP-related issues"""
 
 
 class NotFound(DooverException):
-    pass
+    """Error raised when a resource is not found"""
 
 
 class Forbidden(DooverException):
-    pass
+    """Error raised when access to a resource is forbidden"""

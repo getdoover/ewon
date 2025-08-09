@@ -53,6 +53,7 @@ def construct_ui(processor, ewon):
                 series = multiplot["series"]
                 series_active = multiplot["default_active"]
                 series_colours = multiplot["series_colours"]
+                series_shared_axis = multiplot.get("series_shared_axis", None)
 
                 name = multiplot.get("name", ("multiplot" + str(len(ui_elems))))
 
@@ -62,6 +63,7 @@ def construct_ui(processor, ewon):
                     series=series,
                     series_active=series_active,
                     series_colours=series_colours,
+                    shared_axis=series_shared_axis,
                     title=title,
                 )
                 ui_elems.append(multiplot)

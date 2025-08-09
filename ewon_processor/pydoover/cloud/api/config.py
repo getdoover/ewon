@@ -1,8 +1,10 @@
+"""CLI Config"""
+
 import base64
 import os
 import re
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class NotSet:
@@ -10,17 +12,25 @@ class NotSet:
 
 
 class ConfigEntry:
-    pattern = re.compile(r".*\[profile=(?P<profile>.+)]\n"
-                         r"USERNAME=(?P<username>.*)\n"
-                         r"PASSWORD=(?P<password>.*)\n"
-                         r"TOKEN=(?P<token>.*)\n"
-                         r"TOKEN_EXPIRES=(?P<token_expires>.*)\n"
-                         r"AGENT_ID=(?P<agent_id>.*)\n"
-                         r"BASE_URL=(?P<base_url>.*)")
+    pattern = re.compile(
+        r".*\[profile=(?P<profile>.+)]\n"
+        r"USERNAME=(?P<username>.*)\n"
+        r"PASSWORD=(?P<password>.*)\n"
+        r"TOKEN=(?P<token>.*)\n"
+        r"TOKEN_EXPIRES=(?P<token_expires>.*)\n"
+        r"AGENT_ID=(?P<agent_id>.*)\n"
+        r"BASE_URL=(?P<base_url>.*)"
+    )
 
     def __init__(
-        self, profile: str, username: str = None, password: str = None, token: str = None,
-        token_expires: datetime = None, agent_id: str = None, base_url: str = None
+        self,
+        profile: str,
+        username: str = None,
+        password: str = None,
+        token: str = None,
+        token_expires: datetime = None,
+        agent_id: str = None,
+        base_url: str = None,
     ):
         self.profile = profile
 
@@ -43,7 +53,9 @@ class ConfigEntry:
         match = cls.pattern.match(data.strip())
 
         if match["token_expires"]:
-            token_expires = datetime.fromtimestamp(float(match["token_expires"]))
+            token_expires = datetime.fromtimestamp(
+                float(match["token_expires"]), tz=timezone.utc
+            )
         else:
             token_expires = None
 
@@ -59,22 +71,24 @@ class ConfigEntry:
 
     def format(self):
         password = self.password or ""
-        return (f"[profile={self.profile or ''}]\n"
-                f"USERNAME={self.username or ''}\n"
-                f"PASSWORD={base64.b64encode(password.encode('utf-8')).decode('utf-8') or ''}\n"
-                f"TOKEN={self.token or ''}\n"
-                f"TOKEN_EXPIRES={self.token_expires and self.token_expires.timestamp() or ''}\n"
-                f"AGENT_ID={self.agent_id or ''}\n"
-                f"BASE_URL={self.base_url or ''}\n")
+        return (
+            f"[profile={self.profile or ''}]\n"
+            f"USERNAME={self.username or ''}\n"
+            f"PASSWORD={base64.b64encode(password.encode('utf-8')).decode('utf-8') or ''}\n"
+            f"TOKEN={self.token or ''}\n"
+            f"TOKEN_EXPIRES={self.token_expires and self.token_expires.timestamp() or ''}\n"
+            f"AGENT_ID={self.agent_id or ''}\n"
+            f"BASE_URL={self.base_url or ''}\n"
+        )
 
 
 class ConfigManager:
     directory = os.path.expanduser("~/.doover")
     filepath = os.path.join(directory, "config")
 
-    def __init__(self):
+    def __init__(self, current_profile: str = None):
         self.entries = {}
-        self.current_profile = None
+        self.current_profile = current_profile
         self.read()
 
     @property

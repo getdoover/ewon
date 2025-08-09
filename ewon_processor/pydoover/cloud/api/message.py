@@ -1,14 +1,39 @@
-import json, time, csv
+import json
+import time
+import csv
 from datetime import datetime
-from typing import Any
+from os import PathLike
+from typing import Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pydoover.cloud.api import Client
 
 
 class Message:
+    """Represents a message in a channel.
 
-    def __init__(self, client, data, channel_id=None, agent_id=None, channel_name=None):
-        
+    Attributes
+    ----------
+    id: str
+        The unique identifier for the message.
+    channel_id: str
+        The unique identifier for the channel the message belongs to.
+    agent_id: str
+        The unique identifier for the agent that sent the message.
+    channel_name: str
+        The name of the channel the message belongs to.
+    """
+
+    def __init__(
+        self,
+        client: "Client",
+        data: dict | str,
+        channel_id: str = None,
+        agent_id: str = None,
+        channel_name: str = None,
+    ):
         self.id = None
-        self.timestamp = None
+        self._timestamp: float = None
 
         self.client = client
         self.channel_id = channel_id
@@ -29,7 +54,7 @@ class Message:
         self.id = data.get("message", None)
         self.agent_id = data.get("agent", None)
         self.channel_name = data.get("channel_name", None)
-        self.timestamp = data.get("timestamp", None)
+        self._timestamp = data.get("timestamp", None)
 
         if not self.channel_id:
             self.channel_id = data.get("channel")
@@ -43,14 +68,20 @@ class Message:
             "timestamp": self.timestamp,
             "channel": self.channel_id,
             "channel_name": self.channel_name,
-            "payload": self._payload
+            "payload": self._payload,
         }
 
-    def update(self):
+    def update(self) -> None:
+        """Fetches the latest data for the message from the server and updates the instance attributes."""
         data = self.client._get_message_raw(self.channel_id, self.id)
         self._from_data(data)
 
-    def fetch_payload(self):
+    def delete(self) -> None:
+        """Deletes the message from the channel."""
+        self.client._delete_message_raw(self.channel_id, self.id)
+
+    def fetch_payload(self) -> dict | str:
+        """Fetches the payload of the message from the site."""
         if self._payload is not None:
             return self._payload
 
@@ -58,28 +89,56 @@ class Message:
         self._payload = json.loads(data["payload"])
         return self._payload
 
-    def get_age(self):
-        return time.time() - self.timestamp
+    @property
+    def age(self) -> float:
+        """Returns the age of the message in seconds since it was created."""
+        return time.time() - self._timestamp
 
+    @property
+    def timestamp(self) -> datetime:
+        """Returns the timestamp of the message as a datetime object in UTC."""
+        return datetime.fromtimestamp(self._timestamp)
+
+    def get_age(self) -> float:
+        return time.time() - self._timestamp
+
+    def get_timestamp(self) -> datetime:
+        return datetime.fromtimestamp(self._timestamp)
 
     @staticmethod
-    def from_csv_export(client, csv_file_path):
-        
+    def from_csv_export(
+        client: "Client", csv_file_path: str | PathLike
+    ) -> list["Message"]:
+        """Create a list of Message instances from a CSV export file.
+
+        Parameters
+        ----------
+        client: Client
+            The client instance to use for API interactions.
+        csv_file_path: str
+            The path to the CSV file containing the exported messages.
+
+        Returns
+        -------
+        list[Message]
+            A list of Message instances created from the CSV data.
+        """
+
         messages = []
 
         # Open and read the CSV file using the csv module
-        with open(csv_file_path, 'r', newline='') as file:
+        with open(csv_file_path, "r", newline="") as file:
             reader = csv.DictReader(file)  # Use DictReader to handle headers
 
             for row in reader:
                 # Extract data from the row
-                key = row['Key']
-                timestamp = row['Timestamp (UTC)']
-                channel_name = row['Channel']
-                channel_id = row['Channel ID']
-                agent_name = row['Agent']
-                agent_id = row['Agent ID']
-                payload = row['Payload']
+                key = row["Key"]
+                timestamp = row["Timestamp (UTC)"]
+                channel_name = row["Channel"]
+                channel_id = row["Channel ID"]
+                # agent_name = row["Agent"]
+                agent_id = row["Agent ID"]
+                payload = row["Payload"]
 
                 # Convert timestamp to UTC epoch timestamp
                 timestamp = datetime.fromisoformat(timestamp).timestamp()
@@ -90,11 +149,11 @@ class Message:
                     data=None,
                     channel_id=channel_id,
                     agent_id=agent_id,
-                    channel_name=channel_name
+                    channel_name=channel_name,
                 )
 
                 message.id = key
-                message.timestamp = timestamp
+                message._timestamp = timestamp
                 message._payload = json.loads(payload)
 
                 messages.append(message)
