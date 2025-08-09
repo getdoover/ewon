@@ -120,7 +120,7 @@ pydoover/ui/__pycache__/variable.cpython-311.pyc,,
 pydoover/ui/camera.py,sha256=sr_rBqmnUjvGFkI1Qu6NK4pcchkk314J8AkTQMzkEAk,1797
 pydoover/ui/element.py,sha256=KdbrLx9-aagmgz61KxtLAPSKR4zq7qB1NjZ_PmKzvC8,11625
 pydoover/ui/interaction.py,sha256=WvEECKLsZpGTE21LUN1q095vS7dXfQGaSipXCQZIfMY,20847
-pydoover/ui/manager.py,sha256=elXJaOD4HCBLjujvJ-cn_g8j7wgGKL7v8EpxKEahelE,34377
+pydoover/ui/manager.py,sha256=anK-ubXY1JX0CywpbriUnNz5cyzmyxh6JSNDVGg_g0w,34506
 pydoover/ui/misc.py,sha256=QnqNL8n41Lz8zYIqg9t7EL9HjFy0Ebx4RceJWubjvUg,5101
 pydoover/ui/parameter.py,sha256=e8P5P0WujR_LDd3Zsjp3g1L_35pjgN2FPDVeTwUu4lI,8704
 pydoover/ui/submodule.py,sha256=xFVziTmuc-EWDkcCKKXSdxcHDchu7VMwtJywX0Nl2yw,10654
@@ -138,6 +138,6 @@ pydoover/utils/alarm.py,sha256=ze4zGrKMQ6Ko8yh3sEVF1HdTp73Rs3hPotb8rpR1YRE,4537
 pydoover/utils/deprecator.py,sha256=ZEpdVkAxkQXAZtQ7xN8zwgkSwPQKyBtGF8kb5lji-qE,2222
 pydoover/utils/diff.py,sha256=JGz4DmHal_A-5eF0oXTC6zRiB6a0WbxAKEuzehsONso,2190
 pydoover/utils/kalman.py,sha256=vCCWboIqj0jdgEbhN798DycDpJf58Zs-SuDN8J_RpbE,12371
-pydoover/utils/pid.py,sha256=VQdaSGXb40SBAAZIyxXUAFw_rFQK0MGiLHVRLtT02Is,4182
+pydoover/utils/pid.py,sha256=TIxiQ8REBDDEwuf-CmJtWive6ZZGrITtQ5OLoUP0bfU,3882
 pydoover/utils/test_tag_subscriptions.py,sha256=Il5v9COcWivjKF4swOGGYMrXxuohlnegbH5rW4e_GCA,3724
-pydoover/utils/utils.py,sha256=p87l977aFg_UqzETMokChK1VyI4HNF8IEfw7qU0mytk,14236
+pydoover/utils/utils.py,sha256=Bfkqr7N4y3KEj4t_wGP61YsCq7nlWNbWT52-_FsmGb0,13895

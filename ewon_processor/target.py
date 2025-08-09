@@ -25,6 +25,7 @@ class target(ProcessorBase):
         self.ui_manager.set_children(self._ui_elements)
 
         self.ui_manager.agent_id = self.agent_id
+        self.ui_manager.app_wrap_ui = False
         self.ui_manager.pull()
 
 

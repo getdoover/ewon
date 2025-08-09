@@ -194,12 +194,6 @@ async def wrap_try_except_async(func, *args, **kwargs):
     except Exception as e:
         log.exception(f"Error in {func.__name__}: {e}", exc_info=e)
 
-async def wrap_time_limit(func, timeout, *args, **kwargs):
-    """Wrapper function to catch exceptions and log them. This does not propagate the exception."""
-    try:
-        return await asyncio.wait_for(func(*args, **kwargs), timeout=timeout)
-    except Exception as e:
-        log.exception(f"Error in {func.__name__}: {e}", exc_info=e)
 
 async def call_maybe_async(
     func, *args, as_task: bool = False, in_executor: bool = True, **kwargs

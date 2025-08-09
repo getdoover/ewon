@@ -2,7 +2,7 @@ import time
 
 
 class PID:
-    def __init__(self, Kp, Ki, Kd, setpoint=0, output_limits=(None, None), integral_output_limit=None):
+    def __init__(self, Kp, Ki, Kd, setpoint=0, output_limits=(None, None)):
         """
         Initialize the PID controller.
 
@@ -11,14 +11,12 @@ class PID:
         :param Kd: Derivative gain
         :param setpoint: The target value that the PID controller tries to achieve
         :param output_limits: Tuple (min_output, max_output) for limiting output
-        :param integral_limit: Limit for the integral term
         """
         self.Kp = Kp
         self.Ki = Ki
         self.Kd = Kd
         self.setpoint = setpoint
         self.output_limits = output_limits
-        self.integral_limit = integral_output_limit
 
         self._last_time = None
         self._last_error = None
@@ -60,9 +58,6 @@ class PID:
         # Integral term
         self._integral += error * delta_time
         integral = self.Ki * self._integral
-        if self.integral_limit is not None:
-            integral = max(integral, -self.integral_limit)
-            integral = min(integral, self.integral_limit)
 
         # Derivative term
         delta_error = error - self._last_error
