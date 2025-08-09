@@ -23,6 +23,8 @@ class target(ProcessorBase):
         # Construct the UI
         self._ui_elements = construct_ui(self, self.get_ewon())
         self.ui_manager.set_children(self._ui_elements)
+
+        self.ui_manager.agent_id = self.agent_id
         self.ui_manager.pull()
 
 
