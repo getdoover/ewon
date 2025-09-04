@@ -1,59 +1,310 @@
 {
     "deployment_package_dir": "ewon_processor/",
-    "processor_deployments" : {
-        "processors" : [
+    "processor_deployments": {
+        "processors": [
             {
-                "name" : "ewon_processor",
-                "processor_package_dir" : "ewon_processor/"
+                "name": "ewon_processor",
+                "processor_package_dir": "ewon_processor/"
             }
         ],
-        "tasks" : [
+        "tasks": [
             {
-                "name" : "on_fetch",
-                "processor_name" : "ewon_processor",
-                "task_config" : {
+                "name": "on_fetch",
+                "processor_name": "ewon_processor",
+                "task_config": {
                     "message_type": "FETCH"
                 },
-                "min_time_between_invocations" : 3600,
-                "subscriptions" : [
+                "min_time_between_invocations": 3600,
+                "subscriptions": [
                     {
-                        "channel_name" : "trigger_fetch",
-                        "is_active" : true
+                        "channel_name": "trigger_fetch",
+                        "is_active": true
                     }
                 ]
             },
             {
-                "name" : "on_deploy",
-                "processor_name" : "ewon_processor",
-                "task_config" : {
+                "name": "on_deploy",
+                "processor_name": "ewon_processor",
+                "task_config": {
                     "message_type": "DEPLOY"
                 },
-                "subscriptions" : [
+                "subscriptions": [
                     {
-                        "channel_name" : "deployments",
-                        "is_active" : true
+                        "channel_name": "deployments",
+                        "is_active": true
                     }
                 ]
             }
         ]
     },
-    "deployment_channel_messages" : [
+    "deployment_channel_messages": [
         {
-            "channel_name" : "ui_cmds",
-            "channel_message" : {}
+            "channel_name": "ui_cmds",
+            "channel_message": {}
         },
         {
-            "channel_name" : "ui_state",
-            "channel_message" : {
-                "state" : null
+            "channel_name": "ui_state",
+            "channel_message": {
+                "state": null
             },
-            "save_log" : false
+            "save_log": false
         },
         {
-            "channel_name" : "deployments",
-            "channel_message" : {
-                "new_deployment" : true
+            "channel_name": "deployments",
+            "channel_message": {
+                "new_deployment": true
             }
         }
-    ]
+    ],
+    "ewon_processor": {
+        "name": "ewon_processor",
+        "display_name": "Ewon Processor",
+        "type": "PRO",
+        "visibility": "PUB",
+        "allow_many": true,
+        "description": "Handle messages from Ewon devices.",
+        "long_description": "README.md",
+        "depends_on": [],
+        "owner_org": "dbb6a39c-e240-41f3-84f8-8439f666a686",
+        "staging_config": {
+            "owner_org_key": "3666ee04-ced7-4621-8b96-fdbd43c1e868",
+            "id": "7368867174049792000"
+        },
+        "lambda_config": {
+            "Environment": {},
+            "Runtime": "python3.13",
+            "Timeout": 60,
+            "Handler": "src.ewon.handler",
+            "MemorySize": 128,
+            "Architectures": [
+                "arm64"
+            ]
+        },
+        "config_schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "",
+            "title": "Application Config",
+            "type": "object",
+            "properties": {
+                "dv_proc_subscriptions": {
+                    "title": "Subscription",
+                    "x-name": "dv_proc_subscriptions",
+                    "x-hidden": false,
+                    "type": "string",
+                    "description": "The name of the channel to subscribe to."
+                },
+                "dv_proc_schedules": {
+                    "title": "Schedule",
+                    "x-name": "dv_proc_schedules",
+                    "x-hidden": false,
+                    "type": "integer",
+                    "description": "The interval in minutes to run the task. 0 to disable.",
+                    "minimum": 0
+                },
+                "data_mailbox_api_token": {
+                    "title": "Data Mailbox API Token",
+                    "x-name": "data_mailbox_api_token",
+                    "x-hidden": false,
+                    "type": "string"
+                },
+                "data_mailbox_developer_id": {
+                    "title": "Data Mailbox Developer ID",
+                    "x-name": "data_mailbox_developer_id",
+                    "x-hidden": false,
+                    "type": "string"
+                },
+                "ewon_id": {
+                    "title": "Ewon ID",
+                    "x-name": "ewon_id",
+                    "x-hidden": false,
+                    "type": "integer"
+                },
+                "ewon_name": {
+                    "title": "Ewon Name",
+                    "x-name": "ewon_name",
+                    "x-hidden": false,
+                    "type": "string"
+                },
+                "ewon_clock_timezone": {
+                    "enum": [
+                        "Australia/Lord_Howe",
+                        "Australia/Canberra",
+                        "Australia/LHI",
+                        "Australia/Hobart",
+                        "Australia/Lindeman",
+                        "Australia/Melbourne",
+                        "Australia/South",
+                        "Australia/Brisbane",
+                        "Australia/Darwin",
+                        "Australia/Adelaide",
+                        "Australia/North",
+                        "Australia/Sydney",
+                        "Australia/Tasmania",
+                        "Australia/Broken_Hill",
+                        "Australia/Queensland",
+                        "Australia/West",
+                        "Australia/Eucla",
+                        "Australia/Victoria",
+                        "Australia/NSW",
+                        "Australia/Perth",
+                        "Australia/Currie",
+                        "Australia/ACT",
+                        "Australia/Yancowinna"
+                    ],
+                    "title": "Ewon Clock Timezone",
+                    "x-name": "ewon_clock_timezone",
+                    "x-hidden": false,
+                    "type": "string",
+                    "default": "Australia/Brisbane"
+                },
+                "multiplots": {
+                    "title": "Multiplots",
+                    "x-name": "multiplots",
+                    "x-hidden": false,
+                    "type": "array",
+                    "description": "Multiplots to include in the UI.",
+                    "items": {
+                        "title": "Multiplot Config",
+                        "x-name": "multiplot_config",
+                        "x-hidden": false,
+                        "type": "object",
+                        "properties": {
+                            "title": {
+                                "title": "Title",
+                                "x-name": "title",
+                                "x-hidden": false,
+                                "type": "string"
+                            },
+                            "series_elements": {
+                                "title": "Series Elements",
+                                "x-name": "series_elements",
+                                "x-hidden": false,
+                                "type": "array",
+                                "items": {
+                                    "title": "Series Element",
+                                    "x-name": "series_element",
+                                    "x-hidden": false,
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "title": "Name",
+                                            "x-name": "name",
+                                            "x-hidden": false,
+                                            "type": "string"
+                                        },
+                                        "colour": {
+                                            "enum": [
+                                                "blue",
+                                                "green",
+                                                "red",
+                                                "yellow",
+                                                "orange",
+                                                "purple",
+                                                "limegreen",
+                                                "grey",
+                                                "magenta",
+                                                "tomato"
+                                            ],
+                                            "title": "Colour",
+                                            "x-name": "colour",
+                                            "x-hidden": false,
+                                            "type": "string",
+                                            "default": "blue"
+                                        },
+                                        "active": {
+                                            "title": "Active",
+                                            "x-name": "active",
+                                            "x-hidden": false,
+                                            "type": "boolean",
+                                            "default": true
+                                        }
+                                    },
+                                    "additionalElements": true,
+                                    "required": [
+                                        "name"
+                                    ]
+                                }
+                            }
+                        },
+                        "additionalElements": true,
+                        "required": [
+                            "title",
+                            "series_elements"
+                        ]
+                    }
+                },
+                "tags": {
+                    "title": "Tags",
+                    "x-name": "tags",
+                    "x-hidden": false,
+                    "type": "array",
+                    "description": "Tags to include in the UI.",
+                    "items": {
+                        "title": "Tag",
+                        "x-name": "tag",
+                        "x-hidden": false,
+                        "type": "object",
+                        "properties": {
+                            "tag_name": {
+                                "title": "Tag Name",
+                                "x-name": "tag_name",
+                                "x-hidden": false,
+                                "type": "string"
+                            },
+                            "display_name": {
+                                "title": "Display Name",
+                                "x-name": "display_name",
+                                "x-hidden": false,
+                                "type": "string"
+                            },
+                            "decimal_precision": {
+                                "title": "Decimal Precision",
+                                "x-name": "decimal_precision",
+                                "x-hidden": false,
+                                "type": "integer",
+                                "default": 2
+                            }
+                        },
+                        "additionalElements": true,
+                        "required": [
+                            "tag_name",
+                            "display_name"
+                        ]
+                    }
+                },
+                "exclude": {
+                    "title": "Exclude",
+                    "x-name": "exclude",
+                    "x-hidden": false,
+                    "type": "array",
+                    "description": "Tags to exclude from the UI.",
+                    "items": {
+                        "title": "Tag Name",
+                        "x-name": "tag_name",
+                        "x-hidden": false,
+                        "type": "string"
+                    }
+                }
+            },
+            "additionalElements": true,
+            "required": [
+                "dv_proc_subscriptions",
+                "dv_proc_schedules",
+                "data_mailbox_api_token",
+                "data_mailbox_developer_id",
+                "ewon_id",
+                "ewon_name",
+                "multiplots",
+                "tags",
+                "exclude"
+            ]
+        },
+        "id": "7369185519097757696",
+        "owner_org_id": "dbb6a39c-e240-41f3-84f8-8439f666a686",
+        "code_repo_id": null,
+        "container_registry_profile_id": null,
+        "repo_branch": "main",
+        "image_name": null,
+        "lambda_arn": null
+    }
 }

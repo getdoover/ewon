@@ -1,0 +1,25 @@
+[project]
+name = "ewon"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "aiohttp>=3.12.15",
+    "pydoover>=0.4.15",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+export-config = "ewon.app_config:export"
+
+[dependency-groups]
+dev = [
+    "boto3>=1.40.21",
+]
+
+[tool.uv.sources]
+pydoover = { git = "https://github.com/getdoover/pydoover", branch = "doover-2" }
