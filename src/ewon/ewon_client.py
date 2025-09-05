@@ -118,7 +118,8 @@ class EwonClient:
         await self.client.close()
 
     async def fetch(self):
-        if self.ewon_id is None:
+        # allows for a None or 0 value
+        if not self.ewon_id:
             log.info(f"Fetching Ewon {self.ewon_name}")
             data = await self.client.get_ewon(self.ewon_id, self.ewon_name)
             self.update_from_ewon(data)
@@ -147,9 +148,12 @@ class EwonClient:
                 self.update_from_ewon(ewon_data[0])
 
     def update_from_ewon(self, data: dict):
-        if str(data["id"]) != str(self.ewon_id) or str(data["name"]) != str(self.ewon_name):
+        if (self.ewon_id and str(self.ewon_id) != str(data["id"])) or (
+            self.ewon_name and str(self.ewon_name) != str(data["name"])
+        ):
             log.warning(
-                f"Payload: {data} does not match our recorded ewon ID or name. Skipping..."
+                f"Payload: {data} does not match our recorded ewon name "
+                f"('{self.ewon_name}') or id ('{self.ewon_id}'). Skipping..."
             )
             return
 

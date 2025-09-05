@@ -67,7 +67,7 @@ class EwonConfig(config.Schema):
         self.ewon_clock_tz = config.Enum(
             "Ewon Clock Timezone",
             # only show Australian timezones. This still has heaps?? (e.g. Lord Howe, etc.)
-            choices=[z for z in zoneinfo.available_timezones() if "Australia" in z],
+            choices=list(sorted([z for z in zoneinfo.available_timezones() if "Australia" in z])),
             default="Australia/Brisbane",
         )
 
