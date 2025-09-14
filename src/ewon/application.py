@@ -106,3 +106,6 @@ class EwonApplication(Application):
                     }
                 },
             )
+
+        # update device as being online
+        await self.ping_connection(max(t.timestamp for t in self.device.tag_frames))
