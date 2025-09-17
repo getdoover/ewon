@@ -68,10 +68,28 @@
         "owner_org": "dbb6a39c-e240-41f3-84f8-8439f666a686",
         "staging_config": {
             "owner_org_key": "3666ee04-ced7-4621-8b96-fdbd43c1e868",
-            "id": "7368867174049792000"
+            "id": "7369185519097757696",
+            "lambda_config": {
+                "Environment": {
+                    "Variables": {
+                        "DOOVER_DATA_ENDPOINT": "https://data.staging.udoover.com/api"
+                    }
+                },
+                "Runtime": "python3.13",
+                "Timeout": 60,
+                "Handler": "src.ewon.handler",
+                "MemorySize": 128,
+                "Architectures": [
+                    "arm64"
+                ]
+            }
         },
         "lambda_config": {
-            "Environment": {},
+            "Environment": {
+                "Variables": {
+                    "DOOVER_DATA_ENDPOINT": "https://data.udoover.com/api"
+                }
+            },
             "Runtime": "python3.13",
             "Timeout": 60,
             "Handler": "src.ewon.handler",
@@ -299,12 +317,12 @@
                 "exclude"
             ]
         },
-        "id": "7369185519097757696",
-        "owner_org_id": "dbb6a39c-e240-41f3-84f8-8439f666a686",
+        "owner_org_id": null,
         "code_repo_id": null,
         "container_registry_profile_id": null,
         "repo_branch": "main",
         "image_name": null,
-        "lambda_arn": null
+        "lambda_arn": null,
+        "id": "93953685960325638"
     }
 }
