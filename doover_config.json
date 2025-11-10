@@ -87,7 +87,7 @@
         "lambda_config": {
             "Environment": {
                 "Variables": {
-                    "DOOVER_DATA_ENDPOINT": "https://data.udoover.com/api"
+                    "DOOVER_DATA_ENDPOINT": "https://data.doover.com/api"
                 }
             },
             "Runtime": "python3.13",
@@ -105,11 +105,11 @@
             "type": "object",
             "properties": {
                 "dv_proc_subscriptions": {
-                    "title": "Subscription",
+                    "title": "Channel Subscription",
                     "x-name": "dv_proc_subscriptions",
                     "x-hidden": false,
                     "type": "string",
-                    "description": "The name of the channel to subscribe to."
+                    "description": "The name of the channel to subscribe to"
                 },
                 "dv_proc_schedules": {
                     "title": "Schedule",
