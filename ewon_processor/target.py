@@ -147,6 +147,11 @@ class target(ProcessorBase):
                     operation = operation.replace("{" + tag_name + "}", str(tag_value))
 
                 try:
+                    # generally speaking this is a huge no-no since we're directly evaluating user input.
+                    # however:
+                    # 1. this will run in a lambda which provides a level of isolation
+                    # 2. you only really have permission to harm your own device, so more fool you
+                    # 3. it's a short term patch that we can do better for doover 2.0
                     result = eval(operation)
                 except Exception as e:
                     logging.info(
