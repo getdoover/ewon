@@ -1,5 +1,7 @@
 import logging, json, time
 from datetime import datetime, timezone, timedelta
+from typing import Any
+
 from dateutil import tz
 from zoneinfo import ZoneInfo
 
@@ -28,6 +30,9 @@ class target(ProcessorBase):
         self.ui_manager.app_wrap_ui = False
         self.ui_manager.pull()
 
+        config = self.get_ewon_ui_settings()
+        tags = config and config.get("tags") or []
+        self.transformed_tags = [t for t in tags if t.get("transformation") is not None]
 
     def process(self):
         message_type = self.package_config.get("message_type")
@@ -123,11 +128,35 @@ class target(ProcessorBase):
 
         ## For each frame, publish a timestamped message to the ui_state channel
         for frame in self.get_ewon().tag_frames:
+            updated: dict[str, Any] = {}
 
             timestamp = frame.timestamp
             for tag in frame.tag_values:
                 self.ui_manager.update_variable(tag.tag_name, tag.value)
-            
+                updated[tag.tag_name] = tag.value
+
+            for tag in self.transformed_tags:
+                name = tag["tag_name"]
+                operation = tag["transformation"]
+
+                if not any(k in operation for k in updated):
+                    logging.info(f"Ignoring computed tag: {name}")
+                    continue  # ignore any computed tags for which we don't have a record
+
+                for tag_name, tag_value in updated.items():
+                    operation = operation.replace("{" + tag_name + "}", str(tag_value))
+
+                try:
+                    result = eval(operation)
+                except Exception as e:
+                    logging.info(
+                        f"Failed to compute {name} tranformed tag ({operation}) - original operation {tag['operation']}: {e}."
+                    )
+                    # result = None
+                else:
+                    logging.info(f"Computed tag - {name}: {result}")
+                    self.ui_manager.update_variable(name, result)
+
             logging.info(f"Pushing record log for timestamp: {timestamp}, with tz {timestamp.tzinfo}")
             self.ui_manager.push(record_log=True, timestamp=timestamp, even_if_empty=True, publish_fields=["currentValue"])
 

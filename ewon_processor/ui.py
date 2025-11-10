@@ -3,6 +3,23 @@ import logging
 from pydoover import ui
 
 
+def config_to_element(settings):
+    data_type = settings.get("data_type", "Float")
+
+    if data_type == "Bool":
+        return ui.BooleanVariable(settings.get("tag_name"), settings.get("display_name"))
+    elif data_type in ["Float", "Int", "UInt"]:
+        return ui.NumericVariable(
+            settings.get("tag_name"),
+            settings.get("display_name"),
+            dec_precision=settings.get("dec_precision"),
+            ranges=settings.get("ranges"),
+            form=settings.get("form"),
+        )
+
+    return None
+
+
 def tag_to_element(settings, tag):
 
     if not tag:
@@ -70,6 +87,10 @@ def construct_ui(processor, ewon):
 
         if "tags" in ewon_ui_settings:
             for ui_tag in ewon_ui_settings["tags"]:
+                if ui_tag.get("transformation") is not None:
+                    logging.info(f"Found a transformation! {ui_tag}")
+                    ui_elems.append(config_to_element(ui_tag))
+                    continue
 
                 ## Find the corresponding tag
                 tag = ewon.get_tag(ui_tag["tag_name"])
