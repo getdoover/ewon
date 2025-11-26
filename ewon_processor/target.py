@@ -112,7 +112,7 @@ class target(ProcessorBase):
         }
         for row in data:
             ts = datetime.fromisoformat(row["Date"])
-            if last_transaction_id and ts.timestamp():
+            if last_transaction_id and ts.timestamp() < last_transaction_id:
                 continue
 
             try:
