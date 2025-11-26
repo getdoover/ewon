@@ -1,16 +1,27 @@
-import logging, json, time
-from datetime import datetime, timezone, timedelta
-from typing import Any
+import csv
+import logging
+from datetime import datetime
 
-from dateutil import tz
-from zoneinfo import ZoneInfo
+from pydoover import ui
 
 from pydoover.cloud.processor import ProcessorBase
 
-from data_mailbox_client import DataMailboxClient, Ewon
+import ftplib
 
-from ui import construct_ui
-
+def construct_ui():
+    return (
+        ui.NumericVariable("ch4", "CH4 Concentration (%v/v)", precision=2),
+        ui.NumericVariable("temperature", "Temperature (°C)", precision=2),
+        ui.BooleanVariable("main_gas_valve", "Main Gas Valve On"),
+        ui.BooleanVariable("power_on", "Power On"),
+        ui.ConnectionInfo(
+            "connectionInfo",
+            connection_type=ui.ConnectionType.periodic,
+            connection_period=(60 * 60),  # 1 hour
+            next_connection=(60 * 60),  # 1 hour
+            allowed_misses=6,
+        ),
+    )
 
 
 class target(ProcessorBase):
@@ -23,16 +34,12 @@ class target(ProcessorBase):
         self.ui_cmds_channel = self.api.create_channel("ui_cmds", self.agent_id)
 
         # Construct the UI
-        self._ui_elements = construct_ui(self, self.get_ewon())
+        self._ui_elements = construct_ui()
         self.ui_manager.set_children(self._ui_elements)
 
         self.ui_manager.agent_id = self.agent_id
         self.ui_manager.app_wrap_ui = False
         self.ui_manager.pull()
-
-        config = self.get_ewon_ui_settings()
-        tags = config and config.get("tags") or []
-        self.transformed_tags = [t for t in tags if t.get("transformation") is not None]
 
     def process(self):
         message_type = self.package_config.get("message_type")
@@ -43,55 +50,6 @@ class target(ProcessorBase):
             self.on_downlink()
         elif message_type == "FETCH":
             self.on_fetch()
-
-    def get_ewon(self):
-        if hasattr(self, "_ewon"):
-            return self._ewon
-        
-        ## Setup the ewon interface
-        self._dm_client = DataMailboxClient(
-            token=self.get_dm_token(),
-            devid=self.get_developer_id()
-        )
-        self._ewon = Ewon(
-            client=self._dm_client,
-            ewon_id=self.get_ewon_id(),
-            ewon_name=self.get_ewon_name(),
-        )
-        self._ewon.set_clock_tz(self.get_ewon_clock_tz())
-        self._ewon.update()
-
-        return self._ewon
-
-    def get_dm_token(self):
-        return self.get_agent_config("DM_TOKEN")
-    
-    def get_developer_id(self):
-        return self.get_agent_config("DEVELOPER_ID")
-
-    def get_ewon_id(self):
-        return self.get_agent_config("EWON_ID")
-    
-    def get_ewon_name(self):
-        return self.get_agent_config("EWON_NAME")
-
-    def get_ewon_clock_tz(self):
-        tz_string = self.get_agent_config("EWON_CLOCK_TZ")
-
-        tz_obj = timezone.utc
-
-        if tz_string:
-            try:
-                # tz_obj = tz.gettz(tz_string)
-                tz_obj = ZoneInfo(tz_string)
-            except:
-                logging.error(f"Invalid timezone string: {tz_string}")
-
-        return tz_obj
-
-
-    def get_ewon_ui_settings(self):
-        return self.get_agent_config("EWON_UI_SETTINGS")
 
     def on_deploy(self):
         ## Run any deployment code here
@@ -108,8 +66,27 @@ class target(ProcessorBase):
         pass
 
     def on_fetch(self):
+        server = ftplib.FTP(self.get_agent_config("FTP_SERVER"))
+        server.login(self.get_agent_config("FTP_USERNAME"), self.get_agent_config("FTP_PASSWORD"))
 
-        ## Get the last transaction id, if any from ui_cmds
+        name = self.get_agent_config("FTP_FILE_NAME")
+        with open("/tmp/ewon_ftp.csv", "wb") as fp:
+            server.retrbinary(f"RETR {name}", fp.write)
+
+        server.quit()
+
+        # parse the data
+        with open("/tmp/ewon_ftp.csv", 'r') as file:
+            csv_reader = csv.DictReader(file)
+            data = list(csv_reader)
+
+        if len(data) == 0:
+            logging.info("No data in file")
+            return
+
+        # check if we've already processed the file, process otherwise.
+        max_ts = max([datetime.fromisoformat(d["Date"]) for d in data]).timestamp()
+
         last_transaction_id = None
         ui_cmds_agg = self.ui_cmds_channel.aggregate
         if ui_cmds_agg is not None:
@@ -117,58 +94,46 @@ class target(ProcessorBase):
             if cmds is not None:
                 last_transaction_id = cmds.get("last_ewon_transaction_id")
 
-        logging.info(f"Last transaction id: {last_transaction_id}")
+        if last_transaction_id is not None and max_ts < last_transaction_id:
+            logging.info(f"Skipping fetch, last transaction id: {last_transaction_id}, max ts: {max_ts}")
+            return
 
-        ## Get the latest data from the ewon
-        self.get_ewon().last_transaction_id = last_transaction_id
-        self.get_ewon().syncdata(create_transaction=True)
+        # Serial Number	Date	Slave ID	Register Address	Value	Channel Index
+        # 21115024330091	2025-11-26 13:39:20	1	0	16443	1
+        # 21115024330091	2025-11-26 13:39:22	1	1	16900	2
+        # 21115024330091	2025-11-26 13:39:23	1	0	0	3
+        # 21115024330091	2025-11-26 13:39:24	1	1	1	4
+        # 21115024330091	2025-11-26 13:44:24	1	0	16435	1
+        lookup = {
+            1: "ch4",
+            2: "temperature",
+            3: "main_gas_valve",
+            4: "power_on",
+        }
+        for row in data:
+            ts = datetime.fromisoformat(row["Date"])
+            if last_transaction_id and ts.timestamp():
+                continue
 
-        ## Create the frames for the UI
-        self.get_ewon().create_frames()
+            try:
+                name = lookup[int(row["Channel Index"])]
+            except KeyError:
+                logging.info(f"Skipping key '{name}'")
+                continue
 
-        ## For each frame, publish a timestamped message to the ui_state channel
-        for frame in self.get_ewon().tag_frames:
-            updated: dict[str, Any] = {}
+            value = int(row["Value"])
+            if name == "ch4":
+                # from eagle.io
+                value = round(value * 0.003052 - 50, 2)
+            elif name == "temperature":
+                value = round(value * 0.039673 - 650, 2)
+            else:
+                value = bool(value)
 
-            timestamp = frame.timestamp
-            for tag in frame.tag_values:
-                self.ui_manager.update_variable(tag.tag_name, tag.value)
-                updated[tag.tag_name] = tag.value
-
-            for tag in self.transformed_tags:
-                name = tag["tag_name"]
-                operation = tag["transformation"]
-
-                if not any(k in operation for k in updated):
-                    logging.info(f"Ignoring computed tag: {name}")
-                    continue  # ignore any computed tags for which we don't have a record
-
-                for tag_name, tag_value in updated.items():
-                    operation = operation.replace("{" + tag_name + "}", str(tag_value))
-
-                try:
-                    # generally speaking this is a huge no-no since we're directly evaluating user input.
-                    # however:
-                    # 1. this will run in a lambda which provides a level of isolation
-                    # 2. you only really have permission to harm your own device, so more fool you
-                    # 3. it's a short term patch that we can do better for doover 2.0
-                    result = eval(operation)
-                except Exception as e:
-                    logging.info(
-                        f"Failed to compute {name} tranformed tag ({operation}) - original operation {tag['operation']}: {e}."
-                    )
-                    # result = None
-                else:
-                    logging.info(f"Computed tag - {name}: {result}")
-                    self.ui_manager.update_variable(name, result)
-
-            logging.info(f"Pushing record log for timestamp: {timestamp}, with tz {timestamp.tzinfo}")
-            self.ui_manager.push(record_log=True, timestamp=timestamp, even_if_empty=True, publish_fields=["currentValue"])
-
-        ## if success, get the latest transaction id and update the ui_cmds channel
-        if self.get_ewon().last_transaction_id is not None:
+            self.ui_manager.update_variable(name, value)
+            self.ui_manager.push(record_log=True, timestamp=ts, even_if_empty=True, publish_fields=["currentValue"])
             self.ui_cmds_channel.publish({
                 "cmds": {
-                    "last_ewon_transaction_id": self.get_ewon().last_transaction_id
+                    "last_ewon_transaction_id": ts.timestamp()
                 }
             })
