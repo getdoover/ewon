@@ -2,14 +2,24 @@ import csv
 import logging
 from datetime import datetime
 
+from pydoover.ui import Colour
+
 from pydoover import ui
 
 from pydoover.cloud.processor import ProcessorBase
 
 import ftplib
 
+
 def construct_ui():
     return (
+        ui.Multiplot(
+            "multiplot",
+            "Multiplot",
+            series=["ch4", "temperature", "main_gas_valve", "power_on"],
+            series_active=[True, True, False, False],
+            series_colours=[Colour.blue, Colour.yellow, Colour.green, Colour.red],
+        ),
         ui.NumericVariable("ch4", "CH4 Concentration (%v/v)", precision=2),
         ui.NumericVariable("temperature", "Temperature (°C)", precision=2),
         ui.BooleanVariable("main_gas_valve", "Main Gas Valve On"),
@@ -17,18 +27,15 @@ def construct_ui():
         ui.ConnectionInfo(
             "connectionInfo",
             connection_type=ui.ConnectionType.periodic,
-            connection_period=(60 * 60),  # 1 hour
-            next_connection=(60 * 60),  # 1 hour
+            connection_period=(30 * 60),  # 1 hour
+            next_connection=(30 * 60),  # 1 hour
             allowed_misses=6,
         ),
     )
 
 
 class target(ProcessorBase):
-
-
     def setup(self):
-
         # Get the required channels
         self.ui_state_channel = self.api.create_channel("ui_state", self.agent_id)
         self.ui_cmds_channel = self.api.create_channel("ui_cmds", self.agent_id)
@@ -60,14 +67,15 @@ class target(ProcessorBase):
         # Trigger a fetch
         self.on_fetch()
 
-
     def on_downlink(self):
         # Run any downlink processing code here
         pass
 
     def on_fetch(self):
         server = ftplib.FTP(self.get_agent_config("FTP_SERVER"))
-        server.login(self.get_agent_config("FTP_USERNAME"), self.get_agent_config("FTP_PASSWORD"))
+        server.login(
+            self.get_agent_config("FTP_USERNAME"), self.get_agent_config("FTP_PASSWORD")
+        )
 
         name = self.get_agent_config("FTP_FILE_NAME")
         with open("/tmp/ewon_ftp.csv", "wb") as fp:
@@ -76,7 +84,7 @@ class target(ProcessorBase):
         server.quit()
 
         # parse the data
-        with open("/tmp/ewon_ftp.csv", 'r') as file:
+        with open("/tmp/ewon_ftp.csv", "r") as file:
             csv_reader = csv.DictReader(file)
             data = list(csv_reader)
 
@@ -95,7 +103,9 @@ class target(ProcessorBase):
                 last_transaction_id = cmds.get("last_ewon_transaction_id")
 
         if last_transaction_id is not None and max_ts < last_transaction_id:
-            logging.info(f"Skipping fetch, last transaction id: {last_transaction_id}, max ts: {max_ts}")
+            logging.info(
+                f"Skipping fetch, last transaction id: {last_transaction_id}, max ts: {max_ts}"
+            )
             return
 
         # Serial Number	Date	Slave ID	Register Address	Value	Channel Index
@@ -131,9 +141,12 @@ class target(ProcessorBase):
                 value = bool(value)
 
             self.ui_manager.update_variable(name, value)
-            self.ui_manager.push(record_log=True, timestamp=ts, even_if_empty=True, publish_fields=["currentValue"])
-            self.ui_cmds_channel.publish({
-                "cmds": {
-                    "last_ewon_transaction_id": ts.timestamp()
-                }
-            })
+            self.ui_manager.push(
+                record_log=True,
+                timestamp=ts,
+                even_if_empty=True,
+                publish_fields=["currentValue"],
+            )
+            self.ui_cmds_channel.publish(
+                {"cmds": {"last_ewon_transaction_id": ts.timestamp()}}
+            )
