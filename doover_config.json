@@ -115,9 +115,9 @@
                     "title": "Schedule",
                     "x-name": "dv_proc_schedules",
                     "x-hidden": false,
-                    "type": "integer",
-                    "description": "The interval in minutes to run the task. 0 to disable.",
-                    "minimum": 0
+                    "format": "doover-schedule",
+                    "type": "string",
+                    "description": "Specify a schedule to run this task."
                 },
                 "data_mailbox_api_token": {
                     "title": "Data Mailbox API Token",

@@ -47,7 +47,7 @@ class EwonUI:
         self.error = ui.WarningIndicator("error", "Error", hidden=True)
 
     def fetch(self):
-        return *self.multiplots, *self.tags, self.connection_info
+        return *self.multiplots, *self.tags
 
     def update(self, device: "EwonClient") -> bool:
         if device.error:
