@@ -45,13 +45,6 @@ class EwonUI:
         excluded = [t.value for t in config.exclude.elements]
         self.tags = [t.to_ui_element() for t in config.tags.elements if t.tag_name.value not in excluded]
         self.error = ui.WarningIndicator("error", "Error", hidden=True)
-        self.connection_info = ui.ConnectionInfo(
-            "connectionInfo",
-            connection_type=ui.ConnectionType.periodic,
-            connection_period=15 * 60,  # 1 hour
-            next_connection=15 * 60,  # 1 hour
-            allowed_misses=6,
-        )
 
     def fetch(self):
         return *self.multiplots, *self.tags, self.connection_info

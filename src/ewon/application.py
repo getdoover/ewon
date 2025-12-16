@@ -1,4 +1,5 @@
 import logging
+from datetime import timedelta
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from pydoover.cloud.processor import (
@@ -6,7 +7,9 @@ from pydoover.cloud.processor import (
     MessageCreateEvent,
     DeploymentEvent,
 )
-from pydoover.cloud.processor.types import ScheduleEvent
+from pydoover.cloud.processor.types import (
+    ScheduleEvent,
+)
 from pydoover.ui import ApplicationVariant
 
 from .app_config import EwonConfig
@@ -108,4 +111,11 @@ class EwonApplication(Application):
             )
 
         # update device as being online
-        await self.ping_connection(max(t.timestamp for t in self.device.tag_frames))
+        # expect it to next be online in 15min from last reading
+        # allow a few misses (6) before marking it offline.
+        last_ping = max(t.timestamp for t in self.device.tag_frames)
+        await self.ping_connection(
+            last_ping,
+            next_online=last_ping + timedelta(minutes=15),
+            offline_at=last_ping + timedelta(minutes=90),
+        )
