@@ -100,7 +100,7 @@ class EwonApplication(Application):
         if self.device.ewon_id != self.config.ewon_id.value:
             # if we fetched an ewon ID and don't currently have one set, update the deployment config.
             # this saves ~300ms each time we fetch the data.
-            await self.api.publish_message(
+            await self.api.update_aggregate(
                 self.agent_id,
                 "deployment_config",
                 {
