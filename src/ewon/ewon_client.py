@@ -108,7 +108,7 @@ class EwonClient:
         self.tags_by_name: dict[str, Tag] = {}
         self.tags: list[Tag] = []
 
-        self.tag_frames: List[TagFrame] = []
+        self.tag_frames: list[TagFrame] = []
 
     async def setup(self):
         await self.client.setup()
