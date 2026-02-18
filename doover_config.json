@@ -1,8 +1,8 @@
 {
     "ewon_processor": {
-        "key": "93953685960325638",
+        "id": "93953685960325638",
         "name": "ewon_processor",
-        "display_name": "Ewon Processor",
+        "display_name": "Ewon DataMailbox",
         "type": "PRO",
         "visibility": "PUB",
         "allow_many": true,
@@ -17,8 +17,7 @@
             "Runtime": "python3.13",
             "Timeout": 60,
             "Handler": "src.ewon.handler",
-            "MemorySize": 128,
-            "Architectures": ["arm64"]
+            "MemorySize": 128
         },
         "config_schema": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
