@@ -10,7 +10,7 @@
         "long_description": "README.md",
         "depends_on": [],
         "owner_org_key": "dbb6a39c-e240-41f3-84f8-8439f666a686",
-        "icon_url": "",
+        "icon_url": "https://upload.wikimedia.org/wikipedia/commons/7/76/HMS_logo.png",
         "banner_url": "",
         "handler": "src.ewon.handler",
         "lambda_config": {
