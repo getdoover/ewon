@@ -19,10 +19,27 @@
             "Handler": "src.ewon.handler",
             "MemorySize": 128
         },
+        "staging_config": {
+            "id": "7369185519097757696",
+            "lambda_config": {
+                "Environment": {
+                    "Variables": {
+                        "DOOVER_DATA_ENDPOINT": "https://data.staging.udoover.com/api"
+                    }
+                },
+                "Runtime": "python3.13",
+                "Timeout": 60,
+                "Handler": "src.ewon.handler",
+                "MemorySize": 128,
+                "Architectures": [
+                    "arm64"
+                ]
+            }
+        },
         "config_schema": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "$id": "",
-            "title": "Application Config",
+            "title": "$default",
             "type": "object",
             "properties": {
                 "dv_proc_subscriptions": {
@@ -30,39 +47,51 @@
                     "x-name": "dv_proc_subscriptions",
                     "x-hidden": false,
                     "type": "string",
-                    "description": "The name of the channel to subscribe to"
+                    "x-required": true,
+                    "description": "The name of the channel to subscribe to",
+                    "x-position": 1
                 },
                 "dv_proc_schedules": {
                     "title": "Schedule",
                     "x-name": "dv_proc_schedules",
                     "x-hidden": false,
-                    "format": "doover-schedule",
                     "type": "string",
-                    "description": "Specify a schedule to run this task."
+                    "x-required": true,
+                    "description": "Specify a schedule to run this task.",
+                    "x-position": 2,
+                    "format": "doover-schedule"
                 },
                 "data_mailbox_api_token": {
                     "title": "Data Mailbox API Token",
                     "x-name": "data_mailbox_api_token",
                     "x-hidden": false,
-                    "type": "string"
+                    "type": "string",
+                    "x-required": true,
+                    "x-position": 3
                 },
                 "data_mailbox_developer_id": {
                     "title": "Data Mailbox Developer ID",
                     "x-name": "data_mailbox_developer_id",
                     "x-hidden": false,
-                    "type": "string"
+                    "type": "string",
+                    "x-required": true,
+                    "x-position": 4
                 },
                 "ewon_id": {
                     "title": "Ewon ID",
                     "x-name": "ewon_id",
                     "x-hidden": false,
-                    "type": "integer"
+                    "type": "integer",
+                    "x-required": true,
+                    "x-position": 5
                 },
                 "ewon_name": {
                     "title": "Ewon Name",
                     "x-name": "ewon_name",
                     "x-hidden": false,
-                    "type": "string"
+                    "type": "string",
+                    "x-required": true,
+                    "x-position": 6
                 },
                 "ewon_clock_timezone": {
                     "enum": [
@@ -93,43 +122,58 @@
                     "title": "Ewon Clock Timezone",
                     "x-name": "ewon_clock_timezone",
                     "x-hidden": false,
-                    "type": "string",
-                    "default": "Australia/Brisbane"
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "x-required": false,
+                    "default": "Australia/Brisbane",
+                    "x-position": 7
                 },
                 "multiplots": {
                     "title": "Multiplots",
                     "x-name": "multiplots",
                     "x-hidden": false,
                     "type": "array",
+                    "x-required": true,
                     "description": "Multiplots to include in the UI.",
+                    "x-position": 8,
                     "items": {
                         "title": "Multiplot Config",
                         "x-name": "multiplot_config",
                         "x-hidden": false,
                         "type": "object",
+                        "x-required": true,
                         "properties": {
                             "title": {
                                 "title": "Title",
                                 "x-name": "title",
                                 "x-hidden": false,
-                                "type": "string"
+                                "type": "string",
+                                "x-required": true,
+                                "x-position": 1
                             },
                             "series_elements": {
                                 "title": "Series Elements",
                                 "x-name": "series_elements",
                                 "x-hidden": false,
                                 "type": "array",
+                                "x-required": true,
+                                "x-position": 2,
                                 "items": {
-                                    "title": "Series Element",
-                                    "x-name": "series_element",
+                                    "title": "Series Config",
+                                    "x-name": "series_config",
                                     "x-hidden": false,
                                     "type": "object",
+                                    "x-required": true,
                                     "properties": {
                                         "name": {
                                             "title": "Name",
                                             "x-name": "name",
                                             "x-hidden": false,
-                                            "type": "string"
+                                            "type": "string",
+                                            "x-required": true,
+                                            "x-position": 1
                                         },
                                         "colour": {
                                             "enum": [
@@ -147,21 +191,33 @@
                                             "title": "Colour",
                                             "x-name": "colour",
                                             "x-hidden": false,
-                                            "type": "string",
-                                            "default": "blue"
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ],
+                                            "x-required": false,
+                                            "default": "blue",
+                                            "x-position": 2
                                         },
                                         "active": {
                                             "title": "Active",
                                             "x-name": "active",
                                             "x-hidden": false,
-                                            "type": "boolean",
-                                            "default": true
+                                            "type": [
+                                                "boolean",
+                                                "null"
+                                            ],
+                                            "x-required": false,
+                                            "default": true,
+                                            "x-position": 3
                                         }
                                     },
                                     "additionalElements": true,
                                     "required": [
                                         "name"
-                                    ]
+                                    ],
+                                    "x-collapsible": true,
+                                    "x-defaultCollapsed": false
                                 }
                             }
                         },
@@ -169,7 +225,9 @@
                         "required": [
                             "title",
                             "series_elements"
-                        ]
+                        ],
+                        "x-collapsible": true,
+                        "x-defaultCollapsed": false
                     }
                 },
                 "tags": {
@@ -177,38 +235,52 @@
                     "x-name": "tags",
                     "x-hidden": false,
                     "type": "array",
+                    "x-required": true,
                     "description": "Tags to include in the UI.",
+                    "x-position": 9,
                     "items": {
-                        "title": "Tag",
-                        "x-name": "tag",
+                        "title": "Tag Config",
+                        "x-name": "tag_config",
                         "x-hidden": false,
                         "type": "object",
+                        "x-required": true,
                         "properties": {
                             "tag_name": {
                                 "title": "Tag Name",
                                 "x-name": "tag_name",
                                 "x-hidden": false,
-                                "type": "string"
+                                "type": "string",
+                                "x-required": true,
+                                "x-position": 1
                             },
                             "display_name": {
                                 "title": "Display Name",
                                 "x-name": "display_name",
                                 "x-hidden": false,
-                                "type": "string"
+                                "type": "string",
+                                "x-required": true,
+                                "x-position": 2
                             },
                             "decimal_precision": {
                                 "title": "Decimal Precision",
                                 "x-name": "decimal_precision",
                                 "x-hidden": false,
-                                "type": "integer",
-                                "default": 2
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ],
+                                "x-required": false,
+                                "default": 2,
+                                "x-position": 3
                             }
                         },
                         "additionalElements": true,
                         "required": [
                             "tag_name",
                             "display_name"
-                        ]
+                        ],
+                        "x-collapsible": true,
+                        "x-defaultCollapsed": false
                     }
                 },
                 "exclude": {
@@ -216,12 +288,15 @@
                     "x-name": "exclude",
                     "x-hidden": false,
                     "type": "array",
+                    "x-required": true,
                     "description": "Tags to exclude from the UI.",
+                    "x-position": 10,
                     "items": {
                         "title": "Tag Name",
                         "x-name": "tag_name",
                         "x-hidden": false,
-                        "type": "string"
+                        "type": "string",
+                        "x-required": true
                     }
                 }
             },

@@ -15,6 +15,7 @@ build-backend = "hatchling.build"
 
 [project.scripts]
 export-config = "ewon.app_config:export"
+export-ui = "ewon.app_ui:export"
 
 [dependency-groups]
 dev = [
