@@ -13,13 +13,8 @@ class EwonTags(Tags):
 
     async def setup(self):
         excluded = [t.value for t in self.config.exclude.elements]
-        # self.tags = [
-        #     t.to_ui_element()
-        #     for t in self.config.tags
-        #     if t.tag_name not in excluded
-        # ]
-        for tag in self.config.tags:
-            if tag.tag_name in excluded:
+        for tag in self.config.tags.elements:
+            if tag.tag_name.value in excluded:
                 continue
 
-            self.add_tag(tag.tag_name, Tag("number"))
+            self.add_tag(tag.tag_name.value, Tag("number"))

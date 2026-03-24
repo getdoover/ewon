@@ -24,19 +24,19 @@ class EwonApplication(Application):
 
     async def setup(self):
         try:
-            tz = ZoneInfo(self.config.ewon_clock_tz)
+            tz = ZoneInfo(self.config.ewon_clock_tz.value)
         except ZoneInfoNotFoundError:
             log.info(
-                f"Zone info {self.config.ewon_clock_tz} not found. Defaulting to Australia/Brisbane."
+                f"Zone info {self.config.ewon_clock_tz.value} not found. Defaulting to Australia/Brisbane."
             )
             tz = ZoneInfo("Australia/Brisbane")
 
         self.device = EwonClient(
-            self.config.dm_token,
-            self.config.dm_developer_id,
+            self.config.dm_token.value,
+            self.config.dm_developer_id.value,
             tz,
-            self.config.ewon_id,
-            self.config.ewon_name,
+            self.config.ewon_id.value,
+            self.config.ewon_name.value,
         )
         await self.device.setup()
 
@@ -82,7 +82,7 @@ class EwonApplication(Application):
                 self.device.last_transaction_id
             )
 
-        if self.device.ewon_id != self.config.ewon_id:
+        if self.device.ewon_id != self.config.ewon_id.value:
             # if we fetched an ewon ID and don't currently have one set, update the deployment config.
             # this saves ~300ms each time we fetch the data.
             await self.api.update_channel_aggregate(
@@ -90,7 +90,7 @@ class EwonApplication(Application):
                 "deployment_config",
                 {
                     "applications": {
-                        self.app_key: {self.config.__class__.ewon_id._name: self.device.ewon_id}
+                        self.app_key: {self.config.ewon_id._name: self.device.ewon_id}
                     }
                 },
             )

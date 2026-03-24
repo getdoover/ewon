@@ -49,7 +49,7 @@ sns_payload = {
     "Records": [
         {
             "Sns": {"Message": json.dumps(message_create_payload)},
-            "EventSubscriptionArn": "arn:aws:sns:ap-southeast-2:484395055539:proc-ch-7369537530808909824-trigger-onmessagecreate:5615ef2d-a456-4d62-aab7-7627d408da66",
+            "EventSubscriptionArn": "arn:aws:sns:ap-southeast-2:484395055539:proc-ch-7369537530808909824-trigger-onmessagecreate:a8c5cfa2-a657-40c9-a0d6-756cd459b902",
             "EventSource": "aws:sns",
         }
     ]

@@ -16,22 +16,30 @@ class EwonUI(ui.UI):
         for i, p in enumerate(self.config.multiplots.elements):
             p: MultiplotConfig
             series = {
-                s.name: {"colour": s.colour, "active": s.active}
+                s.name.value: {"colour": s.colour.value, "active": s.active.value}
                 for s in p.series.elements
             }
 
-            self.add_element(ui.Multiplot(p.title, series))
+            self.add_element(ui.Multiplot(p.title.value, series))
 
         excluded = [t.value for t in self.config.exclude.elements]
-        for tag in self.config.tags:
-            if tag.tag_name in excluded:
+        for tag in self.config.tags.value:
+            if tag.tag_name.value in excluded:
                 continue
+
+            units = tag.units.value or (
+                "(" in tag.tag_display_name.value
+                and ")" in tag.tag_display_name.value
+                and tag.tag_display_name.value.split("(")[1].split(")")[0]
+                or None
+            )
 
             self.add_element(
                 ui.NumericVariable(
-                    tag.tag_display_name,
-                    value=self.tags.get_tag(tag.tag_name),
-                    precision=tag.precision,
+                    tag.tag_display_name.value,
+                    value=self.tags.get_tag(tag.tag_name.value),
+                    precision=tag.precision.value,
+                    units=units,
                 )
             )
 
@@ -39,7 +47,7 @@ class EwonUI(ui.UI):
             ui.WarningIndicator(
                 name="warning_string",
                 display_name=EwonTags.warning_string,
-                hidden=EwonTags.warning_active
+                hidden=EwonTags.warning_active,
             )
         )
 

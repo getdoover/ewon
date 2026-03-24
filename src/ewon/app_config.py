@@ -35,16 +35,7 @@ class TagConfig(config.Object):
     tag_name = config.String("Tag Name")
     tag_display_name = config.String("Display Name")
     precision = config.Integer("Decimal Precision", default=2)
-
-    # def __init__(self, display_name: str = "Tag"):
-    #     super().__init__(display_name)
-    #
-    #     self.tag_name = config.String("Tag Name")
-    #     self.tag_display_name = config.String("Display Name")
-    #     self.precision = config.Integer("Decimal Precision", default=2)
-    #
-    # @staticmethod
-
+    units = config.String("Units", default=None)
 
 
 class EwonConfig(config.Schema):
@@ -81,6 +72,6 @@ class EwonConfig(config.Schema):
 
 
 def export():
-    EwonConfig().export(
+    EwonConfig.export(
         Path(__file__).parents[2] / "doover_config.json", "ewon_processor"
     )
