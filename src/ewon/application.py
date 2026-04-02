@@ -86,7 +86,6 @@ class EwonApplication(Application):
             # if we fetched an ewon ID and don't currently have one set, update the deployment config.
             # this saves ~300ms each time we fetch the data.
             await self.api.update_channel_aggregate(
-                self.agent_id,
                 "deployment_config",
                 {
                     "applications": {
