@@ -15,12 +15,20 @@ class EwonUI(ui.UI):
     async def setup(self):
         for i, p in enumerate(self.config.multiplots.elements):
             p: MultiplotConfig
-            series = {
-                s.name.value: {"colour": s.colour.value, "active": s.active.value}
-                for s in p.series.elements
-            }
-
-            self.add_element(ui.Multiplot(p.title.value, series))
+            self.add_element(
+                ui.Multiplot(
+                    p.title.value,
+                    series=[
+                        ui.Series(
+                            s.name.value,
+                            self.tags.get_tag(s.name.value),
+                            colour=s.colour.value,
+                            active=s.active.value,
+                        )
+                        for s in p.series.elements
+                    ],
+                )
+            )
 
         excluded = [t.value for t in self.config.exclude.elements]
         for tag in self.config.tags.value:
@@ -53,6 +61,8 @@ class EwonUI(ui.UI):
 
 
 def export():
-    EwonUI(None, None).export(
-        Path(__file__).parents[2] / "doover_config.json", "ewon_processor"
-    )
+    print("Dynamic UI not exporting...")
+    return
+    # EwonUI(None, None, None).export(
+    #     Path(__file__).parents[2] / "doover_config.json", "ewon_processor"
+    # )

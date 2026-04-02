@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "aiohttp>=3.12.15",
-    "pydoover>=0.4.15",
+    "pydoover==1.0.0a5",
 ]
 
 [build-system]
