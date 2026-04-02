@@ -7,14 +7,9 @@ import aiohttp
 
 from datetime import datetime
 
-from .tags import TagFrame, Tag, TagValue
+from ewon_common import TagFrame, Tag, TagValue
 
 log = logging.getLogger(__name__)
-
-# pydatamailbox:
-# 1. uses requests (we want aiohttp / async friendly library)
-# 2. hasn't received an update in 4 years
-# 3. isn't doing much for us.
 
 
 class Talk2MException(Exception):
@@ -80,14 +75,7 @@ class Talk2MClient:
         return await self._request("syncdata", data)
 
 
-def truncate_timestamp(timestamp: datetime):
-    truncated_minute = timestamp.minute % 5
-    return timestamp.replace(
-        microsecond=0, second=0, minute=timestamp.minute - truncated_minute
-    )
-
-
-class EwonClient:
+class DataMailboxClient:
     def __init__(
         self,
         dm_token: str,
@@ -118,7 +106,6 @@ class EwonClient:
         await self.client.close()
 
     async def fetch(self):
-        # allows for a None or 0 value
         if not self.ewon_id:
             log.info(f"Fetching Ewon {self.ewon_name}")
             data = await self.client.get_ewon(self.ewon_id, self.ewon_name)
@@ -157,7 +144,6 @@ class EwonClient:
             )
             return
 
-        ## get the ewon data
         self.ewon_id = data.get("id")
         self.ewon_name = data.get("name")
 
@@ -168,25 +154,19 @@ class EwonClient:
         for payload in data.get("tags", []):
             tag = Tag.from_dict(payload, self.clock_tz)
 
-            # pre-compute our tag lookups
             self.tags_by_id[tag.tag_id] = tag
             self.tags_by_name[tag.tag_name] = tag
             self.tags.append(tag)
 
     async def create_frames(self):
-        # if self.tags is None:
-        #     await self.sync_data()
-
         log.info(f"Creating frames for ewon {self.ewon_id}")
 
         self.tag_frames.clear()
-        # flatten all tag values into a single list
         vals: list[TagValue] = list(
             itertools.chain.from_iterable([tag.values for tag in self.tags])
         )
         vals.sort(key=lambda t: t.timestamp)
 
-        # group tags by nearest 5min and call that a "frame"
         current_run = []
         for tag_value in vals:
             if (

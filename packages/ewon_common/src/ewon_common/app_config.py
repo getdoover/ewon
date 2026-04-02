@@ -1,7 +1,6 @@
 import zoneinfo
-from pathlib import Path
 
-from pydoover import config, ui
+from pydoover import config
 from pydoover.ui import Colour
 from pydoover.processor import ScheduleConfig, SubscriptionConfig
 
@@ -36,20 +35,17 @@ class TagConfig(config.Object):
     tag_display_name = config.String("Display Name")
     precision = config.Integer("Decimal Precision", default=2)
     units = config.String("Units", default=None)
+    data_type = config.Enum(
+        "Data Type", choices=["Numeric", "Text", "Boolean"], default="Numeric"
+    )
 
 
-class EwonConfig(config.Schema):
+class EwonCommonConfig(config.Schema):
     subscription = SubscriptionConfig()
     schedule = ScheduleConfig()
 
-    # auto_include = config.Boolean("Auto Include Tags")
-    dm_token = config.String("Data Mailbox API Token")
-    dm_developer_id = config.String("Data Mailbox Developer ID")
-    ewon_id = config.Integer("Ewon ID", default=None)
-    ewon_name = config.String("Ewon Name")
     ewon_clock_tz = config.Enum(
         "Ewon Clock Timezone",
-        # only show Australian timezones. This still has heaps?? (e.g. Lord Howe, etc.)
         choices=list(
             sorted([z for z in zoneinfo.available_timezones() if "Australia" in z])
         ),
@@ -62,16 +58,12 @@ class EwonConfig(config.Schema):
         description="Multiplots to include in the UI.",
     )
     tags = config.Array(
-        "Tags", element=TagConfig("Tag Config"), description="Tags to include in the UI."
+        "Tags",
+        element=TagConfig("Tag Config"),
+        description="Tags to include in the UI.",
     )
     exclude = config.Array(
         "Exclude",
         element=config.String("Tag Name"),
         description="Tags to exclude from the UI.",
-    )
-
-
-def export():
-    EwonConfig.export(
-        Path(__file__).parents[2] / "doover_config.json", "ewon_processor"
     )

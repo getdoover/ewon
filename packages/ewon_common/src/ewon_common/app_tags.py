@@ -1,10 +1,10 @@
 from pydoover.tags import Tag, Tags
 
-from .app_config import EwonConfig
+from .app_config import EwonCommonConfig
 
 
 class EwonTags(Tags):
-    config: EwonConfig
+    config: EwonCommonConfig
 
     warning_active = Tag("boolean", default=False)
     warning_string = Tag("string", default="Warning")

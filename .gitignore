@@ -162,6 +162,5 @@ cython_debug/
 .idea/
 
 package.zip
-packages/
 packages_export/
 requirements.txt

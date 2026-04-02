@@ -2,6 +2,12 @@ version = 1
 revision = 2
 requires-python = ">=3.11"
 
+[manifest]
+members = [
+    "ewon",
+    "ewon-common",
+]
+
 [[package]]
 name = "aiohappyeyeballs"
 version = "2.6.1"
@@ -200,6 +206,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },
+    { name = "ewon-common" },
     { name = "pydoover" },
 ]
 
@@ -213,6 +220,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aiohttp", specifier = ">=3.12.15" },
+    { name = "ewon-common", editable = "packages/ewon_common" },
     { name = "pydoover", git = "https://github.com/getdoover/pydoover" },
 ]
 
@@ -222,6 +230,17 @@ dev = [
     { name = "pytest", specifier = ">=8.3.5" },
     { name = "pytest-asyncio", specifier = ">=0.26.0" },
 ]
+
+[[package]]
+name = "ewon-common"
+version = "0.1.0"
+source = { editable = "packages/ewon_common" }
+dependencies = [
+    { name = "pydoover" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "pydoover", git = "https://github.com/getdoover/pydoover" }]
 
 [[package]]
 name = "frozenlist"

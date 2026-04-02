@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from pydoover import ui
@@ -6,11 +5,11 @@ from pydoover import ui
 from .app_tags import EwonTags
 
 if TYPE_CHECKING:
-    from .app_config import EwonConfig, MultiplotConfig
+    from .app_config import EwonCommonConfig, MultiplotConfig
 
 
 class EwonUI(ui.UI):
-    config: "EwonConfig"
+    config: "EwonCommonConfig"
 
     async def setup(self):
         for i, p in enumerate(self.config.multiplots.elements):
@@ -42,14 +41,27 @@ class EwonUI(ui.UI):
                 or None
             )
 
-            self.add_element(
-                ui.NumericVariable(
-                    tag.tag_display_name.value,
-                    value=self.tags.get_tag(tag.tag_name.value),
-                    precision=tag.precision.value,
-                    units=units,
-                )
-            )
+            match tag.data_type.value:
+                case "Text":
+                    elem = ui.TextVariable(
+                        tag.tag_display_name.value,
+                        value=self.tags.get_tag(tag.tag_name.value),
+                    )
+                case "Boolean":
+                    elem = ui.BooleanVariable(
+                        tag.tag_display_name.value,
+                        value=self.tags.get_tag(tag.tag_name.value),
+                    )
+                # case "Numeric":
+                case _:
+                    elem = ui.NumericVariable(
+                        tag.tag_display_name.value,
+                        value=self.tags.get_tag(tag.tag_name.value),
+                        precision=tag.precision.value,
+                        units=units,
+                    )
+
+            self.add_element(elem)
 
         self.add_element(
             ui.WarningIndicator(
@@ -58,11 +70,3 @@ class EwonUI(ui.UI):
                 hidden=EwonTags.warning_active,
             )
         )
-
-
-def export():
-    print("Dynamic UI not exporting...")
-    return
-    # EwonUI(None, None, None).export(
-    #     Path(__file__).parents[2] / "doover_config.json", "ewon_processor"
-    # )
