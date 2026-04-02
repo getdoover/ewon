@@ -213,7 +213,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aiohttp", specifier = ">=3.12.15" },
-    { name = "pydoover", directory = "../pydoover" },
+    { name = "pydoover", specifier = "==1.0.0a5" },
 ]
 
 [package.metadata.requires-dev]
@@ -629,39 +629,14 @@ wheels = [
 [[package]]
 name = "pydoover"
 version = "1.0.0a5"
-source = { directory = "../pydoover" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
     { name = "httpx" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "aiohttp", specifier = ">=3.12.13" },
-    { name = "croniter", marker = "extra == 'reports'", specifier = ">=6.0.0" },
-    { name = "grpcio", marker = "extra == 'grpc'", specifier = "==1.65.1" },
-    { name = "grpcio", marker = "extra == 'test'", specifier = "==1.65.1" },
-    { name = "grpcio-health-checking", marker = "extra == 'test'", specifier = "==1.65.1" },
-    { name = "httpx", specifier = ">=0.28.0" },
-    { name = "jsonschema", marker = "extra == 'test'", specifier = ">=4.23.0" },
-    { name = "protobuf", marker = "extra == 'grpc'", specifier = "==5.28.2" },
-    { name = "protobuf", marker = "extra == 'test'", specifier = "==5.28.2" },
-    { name = "pytest", marker = "extra == 'test'", specifier = ">=8.3.5" },
-    { name = "pytest-asyncio", marker = "extra == 'test'", specifier = ">=0.26.0" },
-    { name = "pytest-cov", marker = "extra == 'test'", specifier = ">=7.0.0" },
-]
-provides-extras = ["grpc", "reports", "test"]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "grpcio-tools", specifier = ">=1.65.1" },
-    { name = "pre-commit", specifier = ">=4.2.0" },
-    { name = "pytest", specifier = ">=8.3.5" },
-    { name = "pyyaml", specifier = ">=6.0.2" },
-]
-docs = [
-    { name = "sphinx", specifier = ">=8.2.3" },
-    { name = "sphinx-rtd-theme", specifier = ">=3.0.2" },
+sdist = { url = "https://files.pythonhosted.org/packages/62/12/650a8525f61e38a55fe3cc09d050282e266f86e8e803edbaa99755d7755b/pydoover-1.0.0a5.tar.gz", hash = "sha256:7d015f78fae228010666b8e123e756e85b9959afc7d5c4b3bf152b95cdfc3562", size = 455034, upload-time = "2026-04-01T23:58:32.802Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f4/4a/3f472424ab1984a3d13634ff3f376218a1ff9f4b33392faa0d4766ed135c/pydoover-1.0.0a5-py3-none-any.whl", hash = "sha256:cd3e847adf309e1c821fcf6178e057bf0942c569c0549564cd5191903da9e4f5", size = 237740, upload-time = "2026-04-01T23:58:33.741Z" },
 ]
 
 [[package]]
