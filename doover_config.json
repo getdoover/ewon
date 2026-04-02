@@ -81,8 +81,12 @@
                     "title": "Ewon ID",
                     "x-name": "ewon_id",
                     "x-hidden": false,
-                    "type": "integer",
-                    "x-required": true,
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
+                    "x-required": false,
+                    "default": null,
                     "x-position": 4
                 },
                 "ewon_name": {
@@ -318,7 +322,6 @@
                 "dv_proc_schedules",
                 "data_mailbox_api_token",
                 "data_mailbox_developer_id",
-                "ewon_id",
                 "ewon_name",
                 "multiplots",
                 "tags",

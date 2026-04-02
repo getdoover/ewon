@@ -66,7 +66,7 @@ class EwonApplication(Application):
         for frame in self.device.tag_frames:
             timestamp = frame.timestamp
             for tag in frame.tag_values:
-                await self.tags.get_tag(tag.tag_name).set(tag.value)
+                await self.set_tag(tag.tag_name, tag.value)
 
             log.info(
                 f"Pushing record log for timestamp: {timestamp}, with tz {timestamp.tzinfo}"

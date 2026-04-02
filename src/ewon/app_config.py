@@ -45,7 +45,7 @@ class EwonConfig(config.Schema):
     # auto_include = config.Boolean("Auto Include Tags")
     dm_token = config.String("Data Mailbox API Token")
     dm_developer_id = config.String("Data Mailbox Developer ID")
-    ewon_id = config.Integer("Ewon ID")
+    ewon_id = config.Integer("Ewon ID", default=None)
     ewon_name = config.String("Ewon Name")
     ewon_clock_tz = config.Enum(
         "Ewon Clock Timezone",
