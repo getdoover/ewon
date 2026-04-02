@@ -38,6 +38,7 @@ class TagConfig(config.Object):
     data_type = config.Enum(
         "Data Type", choices=["Numeric", "Text", "Boolean"], default="Numeric"
     )
+    transformation = config.String("Transformation", default=None)
 
 
 class EwonCommonConfig(config.Schema):

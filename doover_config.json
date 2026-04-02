@@ -62,42 +62,6 @@
                     "description": "Specify a schedule to run this task.",
                     "x-position": 1
                 },
-                "data_mailbox_api_token": {
-                    "title": "Data Mailbox API Token",
-                    "x-name": "data_mailbox_api_token",
-                    "x-hidden": false,
-                    "type": "string",
-                    "x-required": true,
-                    "x-position": 2
-                },
-                "data_mailbox_developer_id": {
-                    "title": "Data Mailbox Developer ID",
-                    "x-name": "data_mailbox_developer_id",
-                    "x-hidden": false,
-                    "type": "string",
-                    "x-required": true,
-                    "x-position": 3
-                },
-                "ewon_id": {
-                    "title": "Ewon ID",
-                    "x-name": "ewon_id",
-                    "x-hidden": false,
-                    "type": [
-                        "integer",
-                        "null"
-                    ],
-                    "x-required": false,
-                    "default": null,
-                    "x-position": 4
-                },
-                "ewon_name": {
-                    "title": "Ewon Name",
-                    "x-name": "ewon_name",
-                    "x-hidden": false,
-                    "type": "string",
-                    "x-required": true,
-                    "x-position": 5
-                },
                 "ewon_clock_timezone": {
                     "enum": [
                         "Australia/ACT",
@@ -133,7 +97,7 @@
                     ],
                     "x-required": false,
                     "default": "Australia/Brisbane",
-                    "x-position": 6
+                    "x-position": 2
                 },
                 "multiplots": {
                     "title": "Multiplots",
@@ -142,7 +106,7 @@
                     "type": "array",
                     "x-required": true,
                     "description": "Multiplots to include in the UI.",
-                    "x-position": 7,
+                    "x-position": 3,
                     "items": {
                         "title": "Multiplot Config",
                         "x-name": "multiplot_config",
@@ -242,7 +206,7 @@
                     "type": "array",
                     "x-required": true,
                     "description": "Tags to include in the UI.",
-                    "x-position": 8,
+                    "x-position": 4,
                     "items": {
                         "title": "Tag Config",
                         "x-name": "tag_config",
@@ -289,6 +253,35 @@
                                 "x-required": false,
                                 "default": null,
                                 "x-position": 4
+                            },
+                            "data_type": {
+                                "enum": [
+                                    "Numeric",
+                                    "Text",
+                                    "Boolean"
+                                ],
+                                "title": "Data Type",
+                                "x-name": "data_type",
+                                "x-hidden": false,
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "x-required": false,
+                                "default": "Numeric",
+                                "x-position": 5
+                            },
+                            "transformation": {
+                                "title": "Transformation",
+                                "x-name": "transformation",
+                                "x-hidden": false,
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "x-required": false,
+                                "default": null,
+                                "x-position": 6
                             }
                         },
                         "additionalElements": true,
@@ -307,7 +300,7 @@
                     "type": "array",
                     "x-required": true,
                     "description": "Tags to exclude from the UI.",
-                    "x-position": 9,
+                    "x-position": 5,
                     "items": {
                         "title": "Tag Name",
                         "x-name": "tag_name",
@@ -315,18 +308,54 @@
                         "type": "string",
                         "x-required": true
                     }
+                },
+                "data_mailbox_api_token": {
+                    "title": "Data Mailbox API Token",
+                    "x-name": "data_mailbox_api_token",
+                    "x-hidden": false,
+                    "type": "string",
+                    "x-required": true,
+                    "x-position": 6
+                },
+                "data_mailbox_developer_id": {
+                    "title": "Data Mailbox Developer ID",
+                    "x-name": "data_mailbox_developer_id",
+                    "x-hidden": false,
+                    "type": "string",
+                    "x-required": true,
+                    "x-position": 7
+                },
+                "ewon_id": {
+                    "title": "Ewon ID",
+                    "x-name": "ewon_id",
+                    "x-hidden": false,
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
+                    "x-required": false,
+                    "default": null,
+                    "x-position": 8
+                },
+                "ewon_name": {
+                    "title": "Ewon Name",
+                    "x-name": "ewon_name",
+                    "x-hidden": false,
+                    "type": "string",
+                    "x-required": true,
+                    "x-position": 9
                 }
             },
             "additionalElements": true,
             "required": [
                 "dv_proc_subscriptions",
                 "dv_proc_schedules",
-                "data_mailbox_api_token",
-                "data_mailbox_developer_id",
-                "ewon_name",
                 "multiplots",
                 "tags",
-                "exclude"
+                "exclude",
+                "data_mailbox_api_token",
+                "data_mailbox_developer_id",
+                "ewon_name"
             ]
         }
     },
