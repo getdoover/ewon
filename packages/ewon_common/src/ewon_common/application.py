@@ -12,6 +12,7 @@ from pydoover.models import (
 
 from .app_tags import EwonTags
 from .app_ui import EwonUI
+from .tags import transform_tag_name
 
 log = logging.getLogger(__name__)
 
@@ -49,8 +50,7 @@ class EwonBaseApplication(Application):
 
     def _get_transformed_tags(self):
         return [
-            t for t in self.config.tags.elements
-            if t.transformation.value is not None
+            t for t in self.config.tags.elements if t.transformation.value is not None
         ]
 
     async def process_frames(self):
@@ -61,7 +61,7 @@ class EwonBaseApplication(Application):
             updated: dict[str, Any] = {}
 
             for tag in frame.tag_values:
-                await self.set_tag(tag.tag_name, tag.value)
+                await self.set_tag(transform_tag_name(tag.tag_name), tag.value)
                 updated[tag.tag_name] = tag.value
 
             for tag in transformed_tags:
@@ -73,9 +73,7 @@ class EwonBaseApplication(Application):
                     continue
 
                 for tag_name, tag_value in updated.items():
-                    operation = operation.replace(
-                        "{" + tag_name + "}", str(tag_value)
-                    )
+                    operation = operation.replace("{" + tag_name + "}", str(tag_value))
 
                 try:
                     result = eval(operation)
@@ -87,7 +85,7 @@ class EwonBaseApplication(Application):
                     )
                 else:
                     log.info(f"Computed tag - {name}: {result}")
-                    await self.set_tag(name, result)
+                    await self.set_tag(transform_tag_name(name), result)
 
             log.info(
                 f"Pushing record log for timestamp: {timestamp}, "

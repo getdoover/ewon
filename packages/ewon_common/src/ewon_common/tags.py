@@ -3,6 +3,10 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 
+def transform_tag_name(ewon_tag: str):
+    return ewon_tag.replace(" ", "_")
+
+
 class TagValue:
     def __init__(self, name: str, value: Any, timestamp: datetime):
         self.tag_name: str = name

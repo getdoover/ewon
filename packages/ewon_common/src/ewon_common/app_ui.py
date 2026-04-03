@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from pydoover import ui
 
 from .app_tags import EwonTags
+from .tags import transform_tag_name
 
 if TYPE_CHECKING:
     from .app_config import EwonCommonConfig, MultiplotConfig
@@ -20,7 +21,7 @@ class EwonUI(ui.UI):
                     series=[
                         ui.Series(
                             s.name.value,
-                            self.tags.get_tag(s.name.value),
+                            self.tags.get_tag(transform_tag_name(s.name.value)),
                             colour=s.colour.value,
                             active=s.active.value,
                         )
@@ -45,18 +46,18 @@ class EwonUI(ui.UI):
                 case "Text":
                     elem = ui.TextVariable(
                         tag.tag_display_name.value,
-                        value=self.tags.get_tag(tag.tag_name.value),
+                        value=self.tags.get_tag(transform_tag_name(tag.tag_name.value)),
                     )
                 case "Boolean":
                     elem = ui.BooleanVariable(
                         tag.tag_display_name.value,
-                        value=self.tags.get_tag(tag.tag_name.value),
+                        value=self.tags.get_tag(transform_tag_name(tag.tag_name.value)),
                     )
                 # case "Numeric":
                 case _:
                     elem = ui.NumericVariable(
                         tag.tag_display_name.value,
-                        value=self.tags.get_tag(tag.tag_name.value),
+                        value=self.tags.get_tag(transform_tag_name(tag.tag_name.value)),
                         precision=tag.precision.value,
                         units=units,
                     )
