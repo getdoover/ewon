@@ -1,6 +1,7 @@
 from pydoover.tags import Tag, Tags
 
 from .app_config import EwonCommonConfig
+from .tags import transform_tag_name
 
 
 class EwonTags(Tags):
@@ -17,4 +18,4 @@ class EwonTags(Tags):
             if tag.tag_name.value in excluded:
                 continue
 
-            self.add_tag(tag.tag_name.value, Tag("number"))
+            self.add_tag(transform_tag_name(tag.tag_name.value), Tag("number"))

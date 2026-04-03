@@ -967,6 +967,35 @@
                                 "x-required": false,
                                 "default": null,
                                 "x-position": 4
+                            },
+                            "data_type": {
+                                "enum": [
+                                    "Numeric",
+                                    "Text",
+                                    "Boolean"
+                                ],
+                                "title": "Data Type",
+                                "x-name": "data_type",
+                                "x-hidden": false,
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "x-required": false,
+                                "default": "Numeric",
+                                "x-position": 5
+                            },
+                            "transformation": {
+                                "title": "Transformation",
+                                "x-name": "transformation",
+                                "x-hidden": false,
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "x-required": false,
+                                "default": null,
+                                "x-position": 6
                             }
                         },
                         "additionalElements": true,
