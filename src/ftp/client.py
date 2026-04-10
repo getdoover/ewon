@@ -72,7 +72,8 @@ class FTPClient:
             return
 
         max_ts = max(
-            datetime.fromisoformat(d["Date"]) for d in data
+            datetime.fromisoformat(d["Date"]).replace(tzinfo=self.clock_tz)
+            for d in data
         ).timestamp()
 
         if (
@@ -88,7 +89,7 @@ class FTPClient:
         self.tag_frames.clear()
 
         for row in data:
-            ts = datetime.fromisoformat(row["Date"])
+            ts = datetime.fromisoformat(row["Date"]).replace(tzinfo=self.clock_tz)
             if self.last_transaction_id and ts.timestamp() < self.last_transaction_id:
                 continue
 

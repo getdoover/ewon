@@ -59,6 +59,6 @@ payload = sns_payload
 
 os.environ["DOOVER_DATA_ENDPOINT"] = "https://data.staging.udoover.com/api"
 
-from ewon import handler
+from data_mailbox import handler
 
 handler(payload, {})
