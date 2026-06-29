@@ -68,6 +68,6 @@ class EwonUI(ui.UI):
             ui.WarningIndicator(
                 name="warning_string",
                 display_name=EwonTags.warning_string,
-                hidden=EwonTags.warning_active,
+                hidden=EwonTags.warning_hidden,
             )
         )

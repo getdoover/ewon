@@ -20,7 +20,7 @@ class NetbiterApplication(EwonBaseApplication):
             clock_tz=tz,
         )
         await self.device.setup()
-        await self.tags.warning_active.set(False)
+        await self.tags.warning_hidden.set(True)
 
     async def fetch(self):
         await self.device.sync_data()

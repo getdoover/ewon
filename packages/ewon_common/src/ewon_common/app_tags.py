@@ -7,7 +7,7 @@ from .tags import transform_tag_name
 class EwonTags(Tags):
     config: EwonCommonConfig
 
-    warning_active = Tag("boolean", default=False)
+    warning_hidden = Tag("boolean", default=True)
     warning_string = Tag("string", default="Warning")
 
     last_ewon_transaction_id = Tag("number", default=0)
