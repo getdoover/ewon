@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "aiohttp>=3.12.15",
-    "pydoover>=1.0.0a5",
+    "pydoover>=1.0.0a11",
     "ewon-common",
 ]
 
@@ -28,7 +28,7 @@ dev = [
     "pytest>=8.3.5",
     "pytest-asyncio>=0.26.0",
 ]
-b
+
 [tool.uv.sources]
 ewon-common = { workspace = true }
 

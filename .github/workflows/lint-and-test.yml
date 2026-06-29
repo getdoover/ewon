@@ -1,0 +1,24 @@
+name: "Lint and Test Code"
+
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore:
+      - main  # run deploy action for main
+  pull_request:
+
+jobs:
+  lint:
+    name: Lint Code
+    uses: ./.github/workflows/run-linting.yml
+    secrets: inherit
+
+  test:
+    name: Test Code
+    uses: ./.github/workflows/run-tests.yml
+    secrets: inherit
+
+  validate:
+    name: Validate Schemas
+    uses: ./.github/workflows/validate-schema.yml
+    secrets: inherit

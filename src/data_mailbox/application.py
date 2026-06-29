@@ -21,6 +21,7 @@ class DMApplication(EwonBaseApplication):
             self.config.ewon_name.value,
         )
         await self.device.setup()
+        await self.tags.warning_active.set(False)
 
     async def fetch(self):
         self.device.last_transaction_id = self.tags.last_ewon_transaction_id.value
