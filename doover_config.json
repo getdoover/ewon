@@ -5,13 +5,11 @@
         "display_name": "Ewon DataMailbox",
         "type": "PRO",
         "visibility": "PUB",
-        "allow_many": true,
         "description": "Fetches tag data from HMS Ewon industrial gateways via the Talk2M DataMailbox API and displays it on the Doover platform.",
         "long_description": "README.md",
-        "depends_on": [],
         "icon_url": "https://upload.wikimedia.org/wikipedia/commons/7/76/HMS_logo.png",
         "banner_url": "",
-        "handler": "src.data_mailbox.handler",
+        "organisation_id": null,
         "export_config_command": "export-config-dm",
         "export_ui_command": "NO_EXPORT",
         "lambda_config": {
@@ -19,23 +17,6 @@
             "Timeout": 60,
             "Handler": "src.data_mailbox.handler",
             "MemorySize": 128
-        },
-        "staging_config": {
-            "id": "7369185519097757696",
-            "lambda_config": {
-                "Environment": {
-                    "Variables": {
-                        "DOOVER_DATA_ENDPOINT": "https://data.staging.udoover.com/api"
-                    }
-                },
-                "Runtime": "python3.13",
-                "Timeout": 60,
-                "Handler": "src.data_mailbox.handler",
-                "MemorySize": 128,
-                "Architectures": [
-                    "arm64"
-                ]
-            }
         }
     },
     "ewon_processor_ftp": {
@@ -46,10 +27,9 @@
         "allow_many": true,
         "description": "Fetches tag data from HMS Ewon industrial gateways via an FTP server and displays it on the Doover platform.",
         "long_description": "README.md",
-        "depends_on": [],
         "icon_url": "https://upload.wikimedia.org/wikipedia/commons/7/76/HMS_logo.png",
         "banner_url": "",
-        "handler": "src.ftp.handler",
+        "organisation_id": null,
         "export_config_command": "export-config-ftp",
         "export_ui_command": "NO_EXPORT",
         "lambda_config": {
@@ -57,37 +37,7 @@
             "Timeout": 60,
             "Handler": "src.ftp.handler",
             "MemorySize": 128
-        },
-        "staging_config": {
-            "lambda_config": {
-                "Environment": {
-                    "Variables": {
-                        "DOOVER_DATA_ENDPOINT": "https://data.staging.udoover.com/api"
-                    }
-                },
-                "Runtime": "python3.13",
-                "Timeout": 60,
-                "Handler": "src.ftp.handler",
-                "MemorySize": 128,
-                "Architectures": [
-                    "arm64"
-                ]
-            },
-            "id": 197155436351200513
-        },
-        "organisation_id": null,
-        "container_registry_profile_id": null,
-        "id": 165394169316031493,
-        "key": null,
-        "owner_org_id": null,
-        "code_repo_id": null,
-        "repo_branch": "main",
-        "build_args": null,
-        "image_name": null,
-        "ui_schema": null,
-        "build_widget_command": null,
-        "run_command": null,
-        "lambda_arn": null
+        }
     },
     "ewon_processor_netbiter": {
         "name": "ewon_processor_netbiter",
@@ -97,10 +47,9 @@
         "allow_many": true,
         "description": "Fetches tag data from HMS Ewon industrial gateways via the Netbiter API and displays it on the Doover platform.",
         "long_description": "README.md",
-        "depends_on": [],
         "icon_url": "https://upload.wikimedia.org/wikipedia/commons/7/76/HMS_logo.png",
         "banner_url": "",
-        "handler": "src.netbiter.handler",
+        "organisation_id": null,
         "export_config_command": "export-config-netbiter",
         "export_ui_command": "NO_EXPORT",
         "lambda_config": {
@@ -108,37 +57,6 @@
             "Timeout": 60,
             "Handler": "src.netbiter.handler",
             "MemorySize": 128
-        },
-        "staging_config": {
-            "lambda_config": {
-                "Environment": {
-                    "Variables": {
-                        "DOOVER_DATA_ENDPOINT": "https://data.staging.udoover.com/api"
-                    }
-                },
-                "Runtime": "python3.13",
-                "Timeout": 60,
-                "Handler": "src.netbiter.handler",
-                "MemorySize": 128,
-                "Architectures": [
-                    "arm64"
-                ]
-            },
-            "id": 197155552915102978
-        },
-        "organisation_id": null,
-        "container_registry_profile_id": null,
-        "id": 165396052948597767,
-        "key": null,
-        "owner_org_id": null,
-        "code_repo_id": null,
-        "repo_branch": "main",
-        "build_args": null,
-        "image_name": null,
-        "ui_schema": null,
-        "build_widget_command": null,
-        "run_command": null,
-        "lambda_arn": null,
-        "generate_ui": true
+        }
     }
 }
