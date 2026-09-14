@@ -19,8 +19,8 @@ ADELAIDE = ZoneInfo("Australia/Adelaide")
 
 def _payload(**extra):
     payload = {
-        "id": 1753354,
-        "name": "Anglesea",
+        "id": 4242,
+        "name": "TestEwon",
         "tags": [
             {
                 "id": 14626287,
@@ -37,7 +37,7 @@ def _payload(**extra):
 
 
 def _client():
-    return DataMailboxClient("token", "dev-id", ADELAIDE, None, "Anglesea")
+    return DataMailboxClient("token", "dev-id", ADELAIDE, None, "TestEwon")
 
 
 def test_local_clock_ewon_uses_configured_timezone():

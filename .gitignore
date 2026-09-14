@@ -164,3 +164,7 @@ cython_debug/
 package.zip
 packages_export/
 requirements.txt
+
+# Local one-off analysis and data-repair scripts. These reference specific
+# customer agents and site data, so they stay out of this public repo.
+data_analysis/
