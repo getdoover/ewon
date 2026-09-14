@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 
 import aiohttp
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from ewon_common import TagFrame, Tag, TagValue
 
@@ -89,6 +89,10 @@ class DataMailboxClient:
 
         self.last_transaction_id = None
         self.clock_tz = clock_tz
+        # Set once the DataMailbox tells us this Ewon has "Record data in UTC"
+        # enabled (DMWeb reference guide, section 4.5.1). In that mode every
+        # ``date`` in the feed is true UTC and ``clock_tz`` must not be applied.
+        self.records_in_utc: bool = False
 
         self.client = Talk2MClient(dm_token, dm_dev_id)
 
@@ -147,12 +151,29 @@ class DataMailboxClient:
         self.ewon_id = data.get("id")
         self.ewon_name = data.get("name")
 
+        # The DMWeb API only includes ``timeZone`` when the Ewon records in UTC.
+        # Without it, dates are the Ewon's local clock and need ``clock_tz``.
+        ewon_tz = data.get("timeZone")
+        self.records_in_utc = bool(ewon_tz)
+        if self.records_in_utc:
+            parse_tz = timezone.utc
+            log.info(
+                f"Ewon {self.ewon_name} records data in UTC (timeZone={ewon_tz}); "
+                f"ignoring configured clock timezone {self.clock_tz}."
+            )
+        else:
+            parse_tz = self.clock_tz
+            log.info(
+                f"Ewon {self.ewon_name} records data in local time; "
+                f"applying configured clock timezone {self.clock_tz}."
+            )
+
         self.tags_by_id.clear()
         self.tags_by_name.clear()
         self.tags = []
 
         for payload in data.get("tags", []):
-            tag = Tag.from_dict(payload, self.clock_tz)
+            tag = Tag.from_dict(payload, parse_tz)
 
             self.tags_by_id[tag.tag_id] = tag
             self.tags_by_name[tag.tag_name] = tag
