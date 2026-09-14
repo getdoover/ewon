@@ -23,6 +23,17 @@ class EwonBaseApplication(Application):
 
     device = None
 
+    def __init__(self):
+        super().__init__()
+        # pydoover flushes the tag manager once more at the end of every
+        # invocation. With ``_record_tag_update`` left at its default (True)
+        # that flush also *logs* the full tag payload at wall-clock time, so
+        # each hourly upload left a second copy of the newest frame's values
+        # sitting at the processor run time instead of the sample time. We
+        # want the aggregate updated there, but history only ever written
+        # from ``process_frames`` at the frame's own timestamp.
+        self._record_tag_update = False
+
     def resolve_tz(self) -> ZoneInfo:
         try:
             return ZoneInfo(self.config.ewon_clock_tz.value)
@@ -91,7 +102,7 @@ class EwonBaseApplication(Application):
                 f"Pushing record log for timestamp: {timestamp}, "
                 f"with tz {timestamp.tzinfo}"
             )
-            await self.tag_manager.commit_tags(timestamp=timestamp)
+            await self.tag_manager.commit_tags(record_log=True, timestamp=timestamp)
 
         last_ping: datetime | None = (
             max(t.timestamp for t in self.device.tag_frames)

@@ -47,10 +47,17 @@ class EwonCommonConfig(config.Schema):
 
     ewon_clock_tz = config.Enum(
         "Ewon Clock Timezone",
-        choices=list(
+        choices=["UTC"]
+        + list(
             sorted([z for z in zoneinfo.available_timezones() if "Australia" in z])
         ),
         default="Australia/Brisbane",
+        description=(
+            "Timezone the Ewon's clock is set to. Only used when the Ewon "
+            "records data in local time; an Ewon with 'Record data in UTC' "
+            "enabled is detected automatically and this setting is ignored. "
+            "Choose UTC to force UTC parsing."
+        ),
     )
 
     multiplots = config.Array(
