@@ -3,6 +3,7 @@ from datetime import timedelta, datetime
 from typing import Any
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
+from pydoover import ui
 from pydoover.processor import Application
 from pydoover.models import (
     ScheduleEvent,
@@ -48,9 +49,18 @@ class EwonBaseApplication(Application):
         await self.device.close()
 
     async def on_message_create(self, message: MessageCreateEvent):
+        # button presses on ui_cmds are dispatched to ``on_fetch_now`` by the
+        # UI manager; don't fetch a second time here.
+        if message.channel.name == "ui_cmds":
+            return
         await self.fetch()
 
-    async def on_deploy(self, deployment: DeploymentEvent):
+    async def on_deployment(self, deployment: DeploymentEvent):
+        await self.fetch()
+
+    @ui.handler("fetch_now", auto_update=False)
+    async def on_fetch_now(self, ctx, payload):
+        log.info("Fetch requested from UI.")
         await self.fetch()
 
     async def on_schedule(self, event: ScheduleEvent):

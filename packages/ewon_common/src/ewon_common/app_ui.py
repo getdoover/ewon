@@ -71,3 +71,5 @@ class EwonUI(ui.UI):
                 hidden=EwonTags.warning_hidden,
             )
         )
+
+        self.add_element(ui.Button("Fetch Now", name="fetch_now"))
