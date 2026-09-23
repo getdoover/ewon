@@ -2,8 +2,7 @@ import zoneinfo
 
 from pydoover import config
 from pydoover.ui import Colour
-from pydoover.processor import ScheduleConfig, SubscriptionConfig
-
+from pydoover.processor import ScheduleConfig, ManySubscriptionConfig
 
 ALL_COLOURS = [
     Colour.blue,
@@ -42,7 +41,7 @@ class TagConfig(config.Object):
 
 
 class EwonCommonConfig(config.Schema):
-    subscription = SubscriptionConfig(default=("ui_cmds", ), hidden=True)
+    subscription = ManySubscriptionConfig(default=["ui_cmds", ], hidden=True)
     schedule = ScheduleConfig()
 
     ewon_clock_tz = config.Enum(
