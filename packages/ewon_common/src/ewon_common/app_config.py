@@ -42,7 +42,7 @@ class TagConfig(config.Object):
 
 
 class EwonCommonConfig(config.Schema):
-    subscription = SubscriptionConfig()
+    subscription = SubscriptionConfig(default=("ui_cmds", ))
     schedule = ScheduleConfig()
 
     ewon_clock_tz = config.Enum(
