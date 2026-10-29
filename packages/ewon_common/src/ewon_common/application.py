@@ -76,13 +76,18 @@ class EwonBaseApplication(Application):
 
     async def process_frames(self):
         transformed_tags = self._get_transformed_tags()
+        # Tags written and read back live (ms); frames older than that are stale for them.
+        written_at: dict[str, int] = self.get_tag("written_at") or {}
 
         for frame in self.device.tag_frames:
             timestamp = frame.timestamp
+            frame_ms = timestamp.timestamp() * 1000
             updated: dict[str, Any] = {}
 
             for tag in frame.tag_values:
-                await self.set_tag(transform_tag_name(tag.tag_name), tag.value)
+                key = transform_tag_name(tag.tag_name)
+                if frame_ms >= written_at.get(key, 0):
+                    await self.set_tag(key, tag.value)
                 updated[tag.tag_name] = tag.value
 
             for tag in transformed_tags:

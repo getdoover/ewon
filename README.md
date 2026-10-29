@@ -80,6 +80,18 @@ Each multiplot entry requires:
 | **Title** | Chart title |
 | **Series Elements** | Array of series — each with a name (matching a tag name), colour, and active flag |
 
+#### Writes (DataMailbox only)
+
+DataMailbox is read-only, so writes go through the Talk2M **M2Web** API, which reaches the live Ewon. Each **Write Point** maps a `ui_cmds` command (sent with no `app_key`, method = point name, request = value) to a writable Ewon tag. If the tag is mapped to a Modbus/PLC IO server, the Ewon writes the register.
+
+| Setting | Description |
+|---------|-------------|
+| **Talk2M Account / Username / Password** | A Talk2M user with access to this Ewon and no 2FA. API tokens don't work for M2Web. |
+| **Ewon Username / Password** | Local Ewon user allowed to write tags |
+| **Write Points** | Point name, Ewon tag, optional fixed value (buttons), min/max, and a UI control: **Number** (setpoint input showing the tag's value), **Button**, or **None** (left to other UIs such as the flare panel) |
+
+Setpoints are read back from the Ewon after the write and set straight onto the tag, so they show without waiting for the next DataMailbox upload. Buttons aren't read back. Expired or cancelled commands are skipped.
+
 <br/>
 
 ## 🔗 Integrations
