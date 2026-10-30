@@ -156,7 +156,8 @@ class DMApplication(EwonBaseApplication):
             raise RPCError("EWON_ERROR", str(e) or type(e).__name__) from e
 
         if readback is not None:
-            await self.record_readback(transform_tag_name(tag_name), readback)
+            shown = bool(readback) if point.ui_control.value == "Switch" else readback
+            await self.record_readback(transform_tag_name(tag_name), shown)
 
         if readback != value:
             raise RPCError(

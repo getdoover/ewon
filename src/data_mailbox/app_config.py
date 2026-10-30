@@ -25,9 +25,9 @@ class WritePoint(config.Object):
     )
     ui_control = config.Enum(
         "UI Control",
-        choices=["None", "Number", "Button"],
+        choices=["None", "Number", "Switch", "Button"],
         default="None",
-        description="Number edits a setpoint; Button writes the fixed value. None leaves it to other UIs (e.g. the flare panel).",
+        description="Number edits a setpoint; Switch toggles a 0/1 tag; Button writes the fixed value. None leaves it to other UIs (e.g. the flare panel).",
     )
     units = config.String("Units", default=None)
 

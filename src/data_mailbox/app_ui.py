@@ -15,7 +15,8 @@ class DMTags(EwonTags):
         for p in self.config.write_points.elements:
             key = transform_tag_name(p.tag_name.value)
             if self._get_declaration(key) is None:
-                self.add_tag(key, Tag("number"))
+                kind = "boolean" if p.ui_control.value == "Switch" else "number"
+                self.add_tag(key, Tag(kind))
 
 
 class DMUI(EwonUI):
@@ -23,27 +24,29 @@ class DMUI(EwonUI):
 
     async def setup(self):
         await super().setup()
-        for p in self.config.write_points.elements:
-            name = p.point.value
-            label = p.label.value or name
-            match p.ui_control.value:
-                case "Number":
-                    # Shows the readback tag, so the field only changes once the Ewon does.
-                    tag = self.tags.get_tag(transform_tag_name(p.tag_name.value))
-                    self.add_element(
-                        ui.FloatInput(
-                            label,
-                            name=name,
-                            value=tag,
-                            units=p.units.value or ui.NotSet,
-                            min_val=ui.NotSet
-                            if p.min_value.value is None
-                            else p.min_value.value,
-                            max_val=ui.NotSet
-                            if p.max_value.value is None
-                            else p.max_value.value,
-                            requires_confirm=True,
-                        )
-                    )
-                case "Button":
-                    self.add_element(ui.Button(label, name=name, requires_confirm=True))
+        points = self.config.write_points.elements
+        # Grouped so setpoints come first, then switches, then the command buttons.
+        for control in ("Number", "Switch", "Button"):
+            for p in points:
+                if p.ui_control.value == control:
+                    self.add_element(self.make_control(p))
+
+    def make_control(self, p):
+        name = p.point.value
+        label = p.label.value or name
+        if p.ui_control.value == "Button":
+            return ui.Button(label, name=name, requires_confirm=True)
+
+        # Shows the readback tag, so the control only changes once the Ewon does.
+        tag = self.tags.get_tag(transform_tag_name(p.tag_name.value))
+        if p.ui_control.value == "Switch":
+            return ui.Switch(label, name=name, value=tag, requires_confirm=True)
+        return ui.FloatInput(
+            label,
+            name=name,
+            value=tag,
+            units=p.units.value or ui.NotSet,
+            min_val=ui.NotSet if p.min_value.value is None else p.min_value.value,
+            max_val=ui.NotSet if p.max_value.value is None else p.max_value.value,
+            requires_confirm=True,
+        )
