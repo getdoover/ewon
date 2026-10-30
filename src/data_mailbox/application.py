@@ -3,6 +3,7 @@ import logging
 from datetime import UTC, datetime, timedelta
 
 import aiohttp
+from pydoover.models import DeploymentEvent
 from pydoover.rpc import RPCError
 
 from ewon_common import EwonBaseApplication
@@ -156,8 +157,7 @@ class DMApplication(EwonBaseApplication):
             raise RPCError("EWON_ERROR", str(e) or type(e).__name__) from e
 
         if readback is not None:
-            shown = bool(readback) if point.ui_control.value == "Switch" else readback
-            await self.record_readback(transform_tag_name(tag_name), shown)
+            await self.record_readback(point, readback)
 
         if readback != value:
             raise RPCError(
@@ -166,7 +166,28 @@ class DMApplication(EwonBaseApplication):
             )
         return {"tag": tag_name, "value": readback}
 
-    async def record_readback(self, key: str, value):
+    async def on_deployment(self, deployment: DeploymentEvent):
+        await super().on_deployment(deployment)
+        await self.refresh_write_points()
+
+    async def refresh_write_points(self):
+        # DataMailbox doesn't log most writable tags, so read them live once on deploy;
+        # otherwise their controls stay blank (or a switch shows off) until the first write.
+        if not self.m2web:
+            return
+        try:
+            values = await self.m2web.read_tags()
+        except (M2WebException, aiohttp.ClientError, TimeoutError) as e:
+            log.warning(f"Couldn't read write-point tags from the Ewon: {e}")
+            return
+        for point in self.write_points.values():
+            readback = parse_number(values.get(point.tag_name.value))
+            if point.fixed_value.value is None and readback is not None:
+                await self.record_readback(point, readback)
+
+    async def record_readback(self, point, readback):
+        key = transform_tag_name(point.tag_name.value)
+        value = bool(readback) if point.ui_control.value == "Switch" else readback
         # Same tag the DataMailbox fetch fills, so the panel sees the write straight away.
         # ``written_at`` stops older DataMailbox frames putting the old value back.
         written_at = dict(self.get_tag("written_at") or {})
