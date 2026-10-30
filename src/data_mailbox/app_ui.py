@@ -26,10 +26,16 @@ class DMUI(EwonUI):
         await super().setup()
         points = self.config.write_points.elements
         # Grouped so setpoints come first, then switches, then the command buttons.
-        for control in ("Number", "Switch", "Button"):
-            for p in points:
-                if p.ui_control.value == control:
-                    self.add_element(self.make_control(p))
+        controls = [
+            self.make_control(p)
+            for control in ("Number", "Switch", "Button")
+            for p in points
+            if p.ui_control.value == control
+        ]
+        if controls:
+            self.add_element(
+                ui.Submodule("Controls", name="controls", children=controls)
+            )
 
     def make_control(self, p):
         name = p.point.value
