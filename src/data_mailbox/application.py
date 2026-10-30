@@ -3,7 +3,6 @@ import logging
 from datetime import UTC, datetime, timedelta
 
 import aiohttp
-from pydoover.models import DeploymentEvent
 from pydoover.rpc import RPCError
 
 from ewon_common import EwonBaseApplication
@@ -92,6 +91,8 @@ class DMApplication(EwonBaseApplication):
                 self.device.last_transaction_id
             )
 
+        await self.refresh_write_points()
+
         if self.device.ewon_id != self.config.ewon_id.value:
             await self.api.update_channel_aggregate(
                 "deployment_config",
@@ -166,13 +167,9 @@ class DMApplication(EwonBaseApplication):
             )
         return {"tag": tag_name, "value": readback}
 
-    async def on_deployment(self, deployment: DeploymentEvent):
-        await super().on_deployment(deployment)
-        await self.refresh_write_points()
-
     async def refresh_write_points(self):
-        # DataMailbox doesn't log most writable tags, so read them live once on deploy;
-        # otherwise their controls stay blank (or a switch shows off) until the first write.
+        # DataMailbox doesn't log most writable tags, so read them live on every fetch;
+        # that also picks up changes made at the site HMI.
         if not self.m2web:
             return
         try:
@@ -182,12 +179,20 @@ class DMApplication(EwonBaseApplication):
             return
         for point in self.write_points.values():
             readback = parse_number(values.get(point.tag_name.value))
-            if point.fixed_value.value is None and readback is not None:
+            if point.fixed_value.value is not None or readback is None:
+                continue
+            if self.shown_value(point, readback) != self.get_tag(
+                transform_tag_name(point.tag_name.value)
+            ):
                 await self.record_readback(point, readback)
+
+    @staticmethod
+    def shown_value(point, readback):
+        return bool(readback) if point.ui_control.value == "Switch" else readback
 
     async def record_readback(self, point, readback):
         key = transform_tag_name(point.tag_name.value)
-        value = bool(readback) if point.ui_control.value == "Switch" else readback
+        value = self.shown_value(point, readback)
         # Same tag the DataMailbox fetch fills, so the panel sees the write straight away.
         # ``written_at`` stops older DataMailbox frames putting the old value back.
         written_at = dict(self.get_tag("written_at") or {})
