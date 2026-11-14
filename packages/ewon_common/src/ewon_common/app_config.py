@@ -59,6 +59,18 @@ class EwonCommonConfig(config.Schema):
         ),
     )
 
+    offline_after = config.Integer(
+        "Offline After",
+        default=90 * 60,
+        minimum=60,
+        description=(
+            "Seconds after the Ewon's newest record before the device is shown "
+            "offline. Raise it for an Ewon that uploads less often than every "
+            "90 minutes, or whose data reaches the platform well after it is "
+            "recorded, so a normal gap between uploads is not shown as a drop."
+        ),
+    )
+
     multiplots = config.Array(
         "Multiplots",
         element=MultiplotConfig("Multiplot Config"),
