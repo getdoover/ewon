@@ -18,6 +18,9 @@ from .tags import transform_tag_name
 log = logging.getLogger(__name__)
 
 
+DEFAULT_OFFLINE_AFTER = 90 * 60
+
+
 class EwonBaseApplication(Application):
     tags_cls = EwonTags
     ui_cls = EwonUI
@@ -44,6 +47,13 @@ class EwonBaseApplication(Application):
                 f"Defaulting to Australia/Brisbane."
             )
             return ZoneInfo("Australia/Brisbane")
+
+    @property
+    def offline_after_seconds(self) -> int:
+        """The configured window, or the 90 minutes every install had before
+        the setting existed."""
+        value = getattr(getattr(self.config, "offline_after", None), "value", None)
+        return int(value) if value else DEFAULT_OFFLINE_AFTER
 
     async def close(self):
         await self.device.close()
@@ -125,7 +135,10 @@ class EwonBaseApplication(Application):
             else None
         )
         if last_ping:
+            # The window is measured from the record's own time, not from
+            # when it arrived, so it must cover the upload interval plus any
+            # lag in the data reaching the platform.
             await self.ping_connection(
                 last_ping,
-                offline_at=last_ping + timedelta(minutes=90),
+                offline_at=last_ping + timedelta(seconds=self.offline_after_seconds),
             )
