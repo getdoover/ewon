@@ -48,11 +48,20 @@ class EwonBaseApplication(Application):
             )
             return ZoneInfo("Australia/Brisbane")
 
-    @property
     def offline_after_seconds(self) -> int:
         """The configured window, or the 90 minutes every install had before
-        the setting existed."""
-        value = getattr(getattr(self.config, "offline_after", None), "value", None)
+        the setting existed.
+
+        A method, not a property: pydoover registers UI handlers by scanning
+        every attribute of the app with ``inspect.getmembers``, which
+        evaluates properties, and it does so before the install's config is
+        loaded. A property that reads the config raises there and takes down
+        every invocation before it starts.
+        """
+        try:
+            value = self.config.offline_after.value
+        except (AttributeError, ValueError):
+            value = None
         return int(value) if value else DEFAULT_OFFLINE_AFTER
 
     async def close(self):
@@ -140,5 +149,5 @@ class EwonBaseApplication(Application):
             # lag in the data reaching the platform.
             await self.ping_connection(
                 last_ping,
-                offline_at=last_ping + timedelta(seconds=self.offline_after_seconds),
+                offline_at=last_ping + timedelta(seconds=self.offline_after_seconds()),
             )
